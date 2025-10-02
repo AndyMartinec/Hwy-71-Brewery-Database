@@ -39,6 +39,23 @@
             margin-bottom: 10px;
         }
 
+        .sync-status {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .sync-status.synced {
+            background: rgba(46, 204, 113, 0.3);
+        }
+
+        .sync-status.syncing {
+            background: rgba(241, 196, 15, 0.3);
+        }
+
         .tabs {
             display: flex;
             background: #34495e;
@@ -251,12 +268,19 @@
             border-bottom: 3px solid #3498db;
         }
 
-        .export-info {
-            background: #e8f4f8;
+        .cloud-info {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
             padding: 15px;
             border-radius: 6px;
-            margin-top: 20px;
-            border-left: 4px solid #3498db;
+            margin: 20px 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #7f8c8d;
         }
     </style>
 </head>
@@ -265,6 +289,9 @@
         <div class="header">
             <h1>🍺 Brewery COGS Tracker</h1>
             <p>Comprehensive Cost of Goods Sold Management System</p>
+            <div class="sync-status" id="syncStatus">
+                ☁️ Connected to Cloud Database
+            </div>
         </div>
 
         <div class="tabs">
@@ -275,10 +302,17 @@
 
         <div id="ingredients" class="tab-content active">
             <h2>Ingredient Database</h2>
+            
+            <div class="cloud-info">
+                <strong>☁️ Cloud Storage Active:</strong> All changes are automatically saved to your secure cloud database. Your data is accessible from any device!
+            </div>
+            
             <div class="actions">
                 <button class="btn btn-primary" onclick="addIngredient()">+ Add Ingredient</button>
+                <button class="btn btn-success" onclick="manualSync()">🔄 Sync Now</button>
             </div>
-            <table id="ingredientTable">
+            <div id="loadingIngredients" class="loading">Loading data from cloud...</div>
+            <table id="ingredientTable" style="display: none;">
                 <thead>
                     <tr>
                         <th>Ingredient Name</th>
@@ -352,7 +386,7 @@
                         </div>
                         <div class="summary-item">
                             <div class="summary-label">Batch Size</div>
-                            <div class="summary-value" id="displayBatchSize">0 gal</div>
+                            <div class="summary-value" id="displayBatchSize">0 bbl</div>
                         </div>
                         <div class="summary-item">
                             <div class="summary-label">Cost per Barrel</div>
@@ -387,48 +421,110 @@
                     </thead>
                     <tbody id="analysisBody"></tbody>
                 </table>
-
-                <div class="export-info">
-                    <strong>💡 Pro Tip:</strong> To export this data to Google Sheets, copy the tables above and paste them into a new spreadsheet. All formulas will need to be recreated in Google Sheets format.
-                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // JSONBin Configuration
+        const JSONBIN_BIN_ID = '68de9ec043b1c97be9580e82';
+        const JSONBIN_API_KEY = '$2a$10$dpgLHfw7noHYePd.RUjNG.afb3XNqzqbnj4YpzhpiE3Z2l5oqrFTq';
+        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
         let ingredients = [];
         let recipes = [];
         let currentRecipeId = null;
+        let isSyncing = false;
 
-        // Load data from localStorage
-        function loadFromStorage() {
-            const savedIngredients = localStorage.getItem('breweryIngredients');
-            const savedRecipes = localStorage.getItem('breweryRecipes');
-            
-            if (savedIngredients) {
-                ingredients = JSON.parse(savedIngredients);
-            }
-            if (savedRecipes) {
-                recipes = JSON.parse(savedRecipes);
-            }
-            
-            // If no data exists, load sample data
-            if (ingredients.length === 0 && recipes.length === 0) {
-                initializeSampleData();
-            } else {
-                renderIngredients();
-                updateRecipeSelectors();
+        // Update sync status display
+        function updateSyncStatus(status) {
+            const statusEl = document.getElementById('syncStatus');
+            if (status === 'syncing') {
+                statusEl.className = 'sync-status syncing';
+                statusEl.textContent = '☁️ Syncing...';
+            } else if (status === 'synced') {
+                statusEl.className = 'sync-status synced';
+                statusEl.textContent = '☁️ All changes saved';
+                setTimeout(() => {
+                    statusEl.className = 'sync-status';
+                    statusEl.textContent = '☁️ Connected to Cloud Database';
+                }, 2000);
+            } else if (status === 'error') {
+                statusEl.className = 'sync-status';
+                statusEl.textContent = '⚠️ Sync error - try again';
             }
         }
 
-        // Save data to localStorage
-        function saveToStorage() {
-            localStorage.setItem('breweryIngredients', JSON.stringify(ingredients));
-            localStorage.setItem('breweryRecipes', JSON.stringify(recipes));
+        // Load data from JSONBin
+        async function loadFromCloud() {
+            try {
+                const response = await fetch(`${JSONBIN_URL}/latest`, {
+                    headers: {
+                        'X-Master-Key': JSONBIN_API_KEY
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to load data');
+
+                const data = await response.json();
+                ingredients = data.record.ingredients || [];
+                recipes = data.record.recipes || [];
+
+                // Initialize with sample data if empty
+                if (ingredients.length === 0 && recipes.length === 0) {
+                    await initializeSampleData();
+                } else {
+                    renderIngredients();
+                    updateRecipeSelectors();
+                }
+
+                document.getElementById('loadingIngredients').style.display = 'none';
+                document.getElementById('ingredientTable').style.display = 'table';
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('Error loading data from cloud. Please refresh the page.');
+            }
+        }
+
+        // Save data to JSONBin
+        async function saveToCloud() {
+            if (isSyncing) return;
+            
+            isSyncing = true;
+            updateSyncStatus('syncing');
+
+            try {
+                const response = await fetch(JSONBIN_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify({
+                        ingredients: ingredients,
+                        recipes: recipes
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to save data');
+
+                updateSyncStatus('synced');
+            } catch (error) {
+                console.error('Error saving data:', error);
+                updateSyncStatus('error');
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        // Manual sync button
+        async function manualSync() {
+            await loadFromCloud();
+            alert('Data refreshed from cloud!');
         }
 
         // Initialize with sample data
-        function initializeSampleData() {
+        async function initializeSampleData() {
             ingredients = [
                 {id: 1, name: '2-Row Pale Malt', category: 'Malt', unit: 'lb', cost: 1.20, supplier: 'Briess'},
                 {id: 2, name: 'Pilsner Malt', category: 'Malt', unit: 'lb', cost: 1.35, supplier: 'Weyermann'},
@@ -464,9 +560,9 @@
                 }
             ];
 
+            await saveToCloud();
             renderIngredients();
             updateRecipeSelectors();
-            saveToStorage();
         }
 
         function showTab(tabName) {
@@ -498,10 +594,9 @@
                     <td><button class="btn btn-danger" onclick="deleteIngredient(${ing.id})">Delete</button></td>
                 `;
             });
-            saveToStorage();
         }
 
-        function addIngredient() {
+        async function addIngredient() {
             const newId = ingredients.length > 0 ? Math.max(...ingredients.map(i => i.id)) + 1 : 1;
             ingredients.push({
                 id: newId,
@@ -512,13 +607,14 @@
                 supplier: ''
             });
             renderIngredients();
+            await saveToCloud();
         }
 
-        function updateIngredient(id, field, value) {
+        async function updateIngredient(id, field, value) {
             const ing = ingredients.find(i => i.id === id);
             if (ing) {
                 ing[field] = value;
-                saveToStorage();
+                await saveToCloud();
                 if (currentRecipeId) {
                     renderRecipeIngredients();
                     calculateRecipeCost();
@@ -526,14 +622,15 @@
             }
         }
 
-        function deleteIngredient(id) {
+        async function deleteIngredient(id) {
             if (confirm('Are you sure you want to delete this ingredient?')) {
                 ingredients = ingredients.filter(i => i.id !== id);
                 renderIngredients();
+                await saveToCloud();
             }
         }
 
-        function addRecipe() {
+        async function addRecipe() {
             const newId = recipes.length > 0 ? Math.max(...recipes.map(r => r.id)) + 1 : 1;
             const newRecipe = {
                 id: newId,
@@ -549,7 +646,7 @@
                 ]
             };
             recipes.push(newRecipe);
-            saveToStorage();
+            await saveToCloud();
             updateRecipeSelectors();
             document.getElementById('recipeSelector').value = newId;
             loadRecipe();
@@ -609,15 +706,14 @@
                     <td class="readonly">${ingredient.category}</td>
                     <td><input type="number" value="${recIng.quantity}" step="0.1" onchange="updateRecipeIngredient(${index}, 'quantity', parseFloat(this.value))"></td>
                     <td class="readonly">${ingredient.unit}</td>
-                    <td class="readonly">${ingredient.cost.toFixed(2)}</td>
-                    <td class="readonly">${totalCost}</td>
+                    <td class="readonly">$${ingredient.cost.toFixed(2)}</td>
+                    <td class="readonly">$${totalCost}</td>
                     <td><button class="btn btn-danger" onclick="deleteRecipeIngredient(${index})">Delete</button></td>
                 `;
             });
-            saveToStorage();
         }
 
-        function addRecipeIngredient() {
+        async function addRecipeIngredient() {
             const recipe = recipes.find(r => r.id === currentRecipeId);
             if (ingredients.length === 0) {
                 alert('Please add ingredients to the database first!');
@@ -629,20 +725,23 @@
             });
             renderRecipeIngredients();
             calculateRecipeCost();
+            await saveToCloud();
         }
 
-        function updateRecipeIngredient(index, field, value) {
+        async function updateRecipeIngredient(index, field, value) {
             const recipe = recipes.find(r => r.id === currentRecipeId);
             recipe.ingredients[index][field] = value;
             renderRecipeIngredients();
             calculateRecipeCost();
+            await saveToCloud();
         }
 
-        function deleteRecipeIngredient(index) {
+        async function deleteRecipeIngredient(index) {
             const recipe = recipes.find(r => r.id === currentRecipeId);
             recipe.ingredients.splice(index, 1);
             renderRecipeIngredients();
             calculateRecipeCost();
+            await saveToCloud();
         }
 
         function calculateRecipeCost() {
@@ -656,29 +755,29 @@
                 }
             });
 
-            document.getElementById('totalRecipeCost').textContent = `${totalCost.toFixed(2)}`;
+            document.getElementById('totalRecipeCost').textContent = `$${totalCost.toFixed(2)}`;
             document.getElementById('displayBatchSize').textContent = `${recipe.batchSize} bbl`;
             
             const costPerBbl = recipe.batchSize > 0 ? totalCost / recipe.batchSize : 0;
-            document.getElementById('costPerGallon').textContent = `${costPerBbl.toFixed(2)}`;
+            document.getElementById('costPerGallon').textContent = `$${costPerBbl.toFixed(2)}`;
         }
 
-        function saveRecipe() {
+        async function saveRecipe() {
             const recipe = recipes.find(r => r.id === currentRecipeId);
             recipe.name = document.getElementById('recipeName').value;
             recipe.style = document.getElementById('recipeStyle').value;
             recipe.batchSize = parseFloat(document.getElementById('batchSize').value) || 0;
             
-            saveToStorage();
             calculateRecipeCost();
             updateRecipeSelectors();
+            await saveToCloud();
             alert('Recipe saved successfully!');
         }
 
-        function deleteRecipe() {
+        async function deleteRecipe() {
             if (confirm('Are you sure you want to delete this recipe?')) {
                 recipes = recipes.filter(r => r.id !== currentRecipeId);
-                saveToStorage();
+                await saveToCloud();
                 updateRecipeSelectors();
                 document.getElementById('recipeEditor').style.display = 'none';
                 document.getElementById('recipeSelector').value = '';
@@ -714,35 +813,4 @@
 
                 let marginClass = 'margin-poor';
                 if (marginPercent >= 70) marginClass = 'margin-good';
-                else if (marginPercent >= 50) marginClass = 'margin-ok';
-
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${serving.name}</td>
-                    <td>${serving.volume}</td>
-                    <td>${servingsPerBatch.toFixed(1)}</td>
-                    <td>$${costPerServing.toFixed(2)}</td>
-                    <td><input type="number" value="${serving.price}" step="0.01" onchange="updateServingPrice(${recipeId}, '${serving.name}', parseFloat(this.value))" style="width: 80px;"></td>
-                    <td>$${grossProfit.toFixed(2)}</td>
-                    <td class="${marginClass}">${marginPercent.toFixed(1)}%</td>
-                `;
-            });
-
-            document.getElementById('analysisContent').style.display = 'block';
-        }
-
-        function updateServingPrice(recipeId, servingName, newPrice) {
-            const recipe = recipes.find(r => r.id === recipeId);
-            const serving = recipe.servingSizes.find(s => s.name === servingName);
-            if (serving) {
-                serving.price = newPrice;
-                saveToStorage();
-                loadAnalysis();
-            }
-        }
-
-        // Initialize on load
-        loadFromStorage();
-    </script>
-</body>
-</html>
+                else if (marginPercent >= 50) marginClass =
