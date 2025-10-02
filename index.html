@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brewery COGS Tracker</title>
+    <title>Highway 71 Brewery COGS Tracker</title>
     <style>
         * {
             margin: 0;
@@ -482,7 +482,7 @@
                 document.getElementById('ingredientTable').style.display = 'table';
             } catch (error) {
                 console.error('Error loading data:', error);
-                alert('Error loading data from cloud. Please refresh the page.');
+                document.getElementById('loadingIngredients').innerHTML = '⚠️ Error loading data from cloud. <button class="btn btn-primary" onclick="location.reload()">Retry</button>';
             }
         }
 
@@ -809,8 +809,4 @@
                 const servingsPerBatch = (recipe.batchSize * 31 * 128) / serving.volume;
                 const costPerServing = totalCost / servingsPerBatch;
                 const grossProfit = serving.price - costPerServing;
-                const marginPercent = (grossProfit / serving.price) * 100;
-
-                let marginClass = 'margin-poor';
-                if (marginPercent >= 70) marginClass = 'margin-good';
-                else if (marginPercent >= 50) marginClass =
+                const marginPercent = (grossProfit / serving.price) *
