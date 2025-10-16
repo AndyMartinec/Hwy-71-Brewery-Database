@@ -5,222 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍺 Highway 71 Brewery COGS Tracker</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
-            padding: 20px;
+            min-height: 100vh; padding: 20px;
         }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-        .tabs {
-            display: flex;
-            background: #34495e;
-            overflow-x: auto;
-        }
-        .tab {
-            padding: 15px 25px;
-            color: white;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            font-size: 14px;
-            font-weight: 500;
-            white-space: nowrap;
-            transition: background 0.3s;
-        }
-        .tab:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .tab.active {
-            background: white;
-            color: #34495e;
-        }
-        .tab-content {
-            display: none;
-            padding: 30px;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        th {
-            background: #2c3e50;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        tr:hover {
-            background: #f8f9fa;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            border: 2px solid #e0e0e0;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: border 0.3s;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        input[type="number"] {
-            text-align: right;
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin: 5px;
-        }
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-        }
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #229954;
-        }
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-        .recipe-header {
-            background: #ecf0f1;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .recipe-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .info-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .info-group label {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            font-size: 13px;
-        }
-        .summary-box {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .summary-item {
-            text-align: center;
-        }
-        .summary-label {
-            font-size: 12px;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-        .summary-value {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .margin-good {
-            color: #2ecc71;
-            font-weight: bold;
-        }
-        .margin-ok {
-            color: #f39c12;
-            font-weight: bold;
-        }
-        .margin-poor {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-        .actions {
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .readonly {
-            background: #f8f9fa;
-            color: #666;
-        }
-        h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #3498db;
-        }
-        .save-reminder {
-            background: #fff3cd;
-            border-left: 4px solid #f39c12;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 6px;
-        }
-        .save-reminder strong {
-            color: #f39c12;
-        }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 2em; margin-bottom: 10px; }
+        .tabs { display: flex; background: #34495e; overflow-x: auto; }
+        .tab { padding: 15px 25px; color: white; cursor: pointer; border: none; background: transparent; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background 0.3s; }
+        .tab:hover { background: rgba(255,255,255,0.1); }
+        .tab.active { background: white; color: #34495e; }
+        .tab-content { display: none; padding: 30px; }
+        .tab-content.active { display: block; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        th { background: #2c3e50; color: white; padding: 12px; text-align: left; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 12px; border-bottom: 1px solid #ecf0f1; vertical-align: top; }
+        tr:hover { background: #f8f9fa; }
+        input, select, textarea { width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 4px; font-size: 14px; transition: border 0.3s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #3498db; }
+        input[type="number"] { text-align: right; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; margin: 5px; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-primary:hover { background: #2980b9; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3); }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #229954; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-neutral { background: #7f8c8d; color: white; }
+        .recipe-header { background: #ecf0f1; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .grid { display: grid; gap: 15px; }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+        .info-group { display: flex; flex-direction: column; }
+        .info-group label { font-weight: 600; color: #2c3e50; margin-bottom: 5px; font-size: 13px; }
+        .summary-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
+        .summary-item { text-align: center; }
+        .summary-label { font-size: 12px; opacity: 0.9; margin-bottom: 5px; }
+        .summary-value { font-size: 24px; font-weight: bold; }
+        .margin-good { color: #2ecc71; font-weight: bold; }
+        .margin-ok { color: #f39c12; font-weight: bold; }
+        .margin-poor { color: #e74c3c; font-weight: bold; }
+        .actions { margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+        .readonly { background: #f8f9fa; color: #666; }
+        h2 { color: #2c3e50; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #3498db; }
+        .save-reminder { background: #fff3cd; border-left: 4px solid #f39c12; padding: 15px; margin: 20px 0; border-radius: 6px; }
+        .save-reminder strong { color: #f39c12; }
+        .muted { color: #6c757d; font-size: 13px; }
+        .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+        .kpi div { background: #f6f9fc; border: 1px solid #e1e7ef; padding: 12px; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -230,14 +67,17 @@
             <p>Comprehensive Cost of Goods Sold Management System</p>
         </div>
         <div class="tabs">
-            <button class="tab active" onclick="showTab('ingredients')">Ingredient Database</button>
-            <button class="tab" onclick="showTab('recipes')">Recipes</button>
-            <button class="tab" onclick="showTab('analysis')">Cost Analysis</button>
+            <button class="tab active" onclick="showTab('ingredients', this)">Ingredient Database</button>
+            <button class="tab" onclick="showTab('recipes', this)">Recipes</button>
+            <button class="tab" onclick="showTab('analysis', this)">Cost Analysis</button>
+            <button class="tab" onclick="showTab('batches', this)">Batch Records</button>
         </div>
+
+        <!-- INGREDIENTS TAB -->
         <div id="ingredients" class="tab-content active">
             <h2>Ingredient Database</h2>
             <div class="save-reminder">
-                <strong>💾 Important:</strong> Your data is automatically saved in your browser. To create a backup or transfer data to another device, use the <strong>Export Data</strong> button below.
+                <strong>💾 Important:</strong> Your data is automatically saved in your browser. Export regularly for backups.
             </div>
             <div class="actions">
                 <button class="btn btn-primary" onclick="addIngredient()">+ Add Ingredient</button>
@@ -259,6 +99,8 @@
                 <tbody id="ingredientBody"></tbody>
             </table>
         </div>
+
+        <!-- RECIPES TAB -->
         <div id="recipes" class="tab-content">
             <h2>Beer Recipes</h2>
             <div class="actions">
@@ -270,7 +112,7 @@
             <div id="recipeEditor" style="display: none;">
                 <div class="recipe-header">
                     <h3>Recipe Details</h3>
-                    <div class="recipe-info">
+                    <div class="grid grid-3">
                         <div class="info-group">
                             <label>Beer Name</label>
                             <input type="text" id="recipeName" placeholder="e.g., Hazy IPA">
@@ -318,12 +160,14 @@
                         </div>
                         <div class="summary-item">
                             <div class="summary-label">Cost per Barrel</div>
-                            <div class="summary-value" id="costPerGallon">$0.00</div>
+                            <div class="summary-value" id="costPerBarrel">$0.00</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- ANALYSIS TAB -->
         <div id="analysis" class="tab-content">
             <h2>Cost & Margin Analysis</h2>
             <div class="actions">
@@ -349,33 +193,169 @@
                 </table>
             </div>
         </div>
+
+        <!-- BATCHES TAB -->
+        <div id="batches" class="tab-content">
+            <h2>Batch Records</h2>
+            <p class="muted">Track actual batch costs and packaged yield to monitor monthly COGS.</p>
+            <div class="recipe-header">
+                <h3>New / Edit Batch</h3>
+                <div class="grid grid-4">
+                    <div class="info-group">
+                        <label>Date</label>
+                        <input type="date" id="batchDate">
+                    </div>
+                    <div class="info-group">
+                        <label>Batch ID / Lot</label>
+                        <input type="text" id="batchId" placeholder="e.g., 2025-10-15-WCIPA-01">
+                    </div>
+                    <div class="info-group">
+                        <label>Recipe</label>
+                        <select id="batchRecipe"></select>
+                    </div>
+                    <div class="info-group">
+                        <label>Brewhouse Size (bbls)</label>
+                        <input type="number" id="brewSize" step="0.1" placeholder="e.g., 7">
+                    </div>
+                    <div class="info-group">
+                        <label>Actual Packaged (bbls)</label>
+                        <input type="number" id="packagedBbl" step="0.01" placeholder="e.g., 6.3">
+                    </div>
+                    <div class="info-group">
+                        <label>Ingredient Cost ($)</label>
+                        <input type="number" id="costIngredients" step="0.01" placeholder="auto from recipe or enter">
+                    </div>
+                    <div class="info-group">
+                        <label>Packaging Cost ($)</label>
+                        <input type="number" id="costPackaging" step="0.01" value="0">
+                    </div>
+                    <div class="info-group">
+                        <label>Labor ($)</label>
+                        <input type="number" id="costLabor" step="0.01" value="0">
+                    </div>
+                    <div class="info-group">
+                        <label>Utilities / Overhead ($)</label>
+                        <input type="number" id="costUtilities" step="0.01" value="0">
+                    </div>
+                    <div class="info-group">
+                        <label>Other Cost ($)</label>
+                        <input type="number" id="costOther" step="0.01" value="0">
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-neutral" onclick="autoFillIngredientCost()">⚙️ Auto-calc Ingredient Cost</button>
+                    <button class="btn btn-success" onclick="saveBatch()">💾 Add / Update Batch</button>
+                    <button class="btn btn-danger" onclick="clearBatchForm()">Clear Form</button>
+                </div>
+                <div class="kpi">
+                    <div>
+                        <div class="muted">Yield % (Packaged / Brew)</div>
+                        <div id="kpiYield" class="summary-value" style="color:#2ecc71">0%</div>
+                    </div>
+                    <div>
+                        <div class="muted">Total Cost ($)</div>
+                        <div id="kpiTotalCost" class="summary-value">$0.00</div>
+                    </div>
+                    <div>
+                        <div class="muted">Cost per Packaged bbl</div>
+                        <div id="kpiCostPerBbl" class="summary-value">$0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Recorded Batches</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Batch ID</th>
+                        <th>Recipe</th>
+                        <th>Brew bbl</th>
+                        <th>Packaged bbl</th>
+                        <th>Yield %</th>
+                        <th>Total Cost</th>
+                        <th>$/bbl (packaged)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="batchTableBody"></tbody>
+            </table>
+
+            <h3>Monthly COGS</h3>
+            <div class="actions">
+                <label class="muted" for="monthPicker">Month</label>
+                <input type="month" id="monthPicker" style="max-width:200px;">
+                <button class="btn btn-primary" onclick="renderMonthlyCOGS()">Refresh</button>
+            </div>
+            <div class="kpi">
+                <div>
+                    <div class="muted">Total Packaged (bbl)</div>
+                    <div id="mPackaged" class="summary-value">0.00</div>
+                </div>
+                <div>
+                    <div class="muted">Total COGS ($)</div>
+                    <div id="mCOGS" class="summary-value">$0.00</div>
+                </div>
+                <div>
+                    <div class="muted">Avg $/bbl (packaged)</div>
+                    <div id="mCostPerBbl" class="summary-value">$0.00</div>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Batch ID</th>
+                        <th>Recipe</th>
+                        <th>Packaged bbl</th>
+                        <th>Total Cost</th>
+                        <th>$ / bbl</th>
+                    </tr>
+                </thead>
+                <tbody id="monthlyTableBody"></tbody>
+            </table>
+        </div>
     </div>
+
     <script>
+        // ======= APP STATE =======
         let ingredients = [];
         let recipes = [];
+        let batches = [];
         let currentRecipeId = null;
+        let editingBatchId = null;
+
+        // ======= STORAGE =======
         function loadFromStorage() {
             const savedIngredients = localStorage.getItem('breweryIngredients');
             const savedRecipes = localStorage.getItem('breweryRecipes');
+            const savedBatches = localStorage.getItem('breweryBatches');
             if (savedIngredients) ingredients = JSON.parse(savedIngredients);
             if (savedRecipes) recipes = JSON.parse(savedRecipes);
+            if (savedBatches) batches = JSON.parse(savedBatches);
             if (ingredients.length === 0 && recipes.length === 0) {
                 initializeSampleData();
             } else {
                 renderIngredients();
                 updateRecipeSelectors();
             }
+            updateBatchRecipeSelector();
+            renderBatches();
+            setDefaultMonthPicker();
         }
+
         function saveToStorage() {
             try {
                 localStorage.setItem('breweryIngredients', JSON.stringify(ingredients));
                 localStorage.setItem('breweryRecipes', JSON.stringify(recipes));
+                localStorage.setItem('breweryBatches', JSON.stringify(batches));
             } catch (e) {
                 console.log('localStorage not available');
             }
         }
+
         function exportData() {
-            const data = { ingredients, recipes, exportDate: new Date().toISOString() };
+            const data = { ingredients, recipes, batches, exportDate: new Date().toISOString() };
             const dataStr = JSON.stringify(data, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
@@ -388,6 +368,7 @@
             URL.revokeObjectURL(url);
             alert('Data exported successfully!');
         }
+
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -399,9 +380,13 @@
                         if (confirm('This will replace all current data. Are you sure?')) {
                             ingredients = data.ingredients;
                             recipes = data.recipes;
+                            batches = data.batches || [];
                             saveToStorage();
                             renderIngredients();
                             updateRecipeSelectors();
+                            updateBatchRecipeSelector();
+                            renderBatches();
+                            renderMonthlyCOGS();
                             alert('Data imported successfully!');
                             document.getElementById('recipeSelector').value = '';
                             document.getElementById('recipeEditor').style.display = 'none';
@@ -417,6 +402,8 @@
             reader.readAsText(file);
             event.target.value = '';
         }
+
+        // ======= SAMPLE DATA =======
         function initializeSampleData() {
             ingredients = [
                 {id: 1, name: '2-Row Pale Malt', category: 'Malt', unit: 'lb', cost: 1.20, supplier: 'Briess'},
@@ -431,33 +418,42 @@
                 {id: 10, name: 'Gypsum', category: 'Other', unit: 'oz', cost: 0.50, supplier: 'Local'}
             ];
             recipes = [{
-                id: 1, name: 'West Coast IPA', style: 'American IPA', batchSize: 0.3,
+                id: 1, name: 'West Coast IPA', style: 'American IPA', batchSize: 7,
                 ingredients: [
-                    {ingredientId: 1, quantity: 20}, {ingredientId: 4, quantity: 4},
-                    {ingredientId: 5, quantity: 3}, {ingredientId: 7, quantity: 2}, {ingredientId: 9, quantity: 0.5}
+                    {ingredientId: 1, quantity: 440}, {ingredientId: 4, quantity: 32},
+                    {ingredientId: 5, quantity: 24}, {ingredientId: 7, quantity: 4}, {ingredientId: 9, quantity: 2}
                 ],
                 servingSizes: [
                     {name: 'Draft Pint', volume: 16, price: 7.00}, {name: 'Draft Half', volume: 8, price: 4.00},
                     {name: '12oz Can', volume: 12, price: 3.50}, {name: '16oz Can', volume: 16, price: 4.50}
                 ]
             }];
+            saveToStorage();
             renderIngredients();
             updateRecipeSelectors();
-            saveToStorage();
+            updateBatchRecipeSelector();
+            renderBatches();
+            setDefaultMonthPicker();
+            renderMonthlyCOGS();
         }
-        function showTab(tabName) {
+
+        // ======= TABS =======
+        function showTab(tabName, el) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            const tab = document.getElementById(tabName);
+            if (tab) tab.classList.add('active');
+            if (el) el.classList.add('active');
         }
+
+        // ======= INGREDIENTS =======
         function renderIngredients() {
             const tbody = document.getElementById('ingredientBody');
             tbody.innerHTML = '';
             ingredients.forEach(ing => {
                 const row = tbody.insertRow();
                 row.innerHTML = `
-                    <td><input type="text" value="${ing.name}" onchange="updateIngredient(${ing.id}, 'name', this.value)"></td>
+                    <td><input type="text" value="${ing.name}" onchange="updateIngredient(${ig.id}, 'name', this.value)"></td>
                     <td><select onchange="updateIngredient(${ing.id}, 'category', this.value)">
                         <option ${ing.category === 'Malt' ? 'selected' : ''}>Malt</option>
                         <option ${ing.category === 'Hops' ? 'selected' : ''}>Hops</option>
@@ -465,22 +461,24 @@
                         <option ${ing.category === 'Other' ? 'selected' : ''}>Other</option>
                     </select></td>
                     <td><input type="text" value="${ing.unit}" onchange="updateIngredient(${ing.id}, 'unit', this.value)"></td>
-                    <td><input type="number" value="${ing.cost}" step="0.01" onchange="updateIngredient(${ing.id}, 'cost', parseFloat(this.value))"></td>
+                    <td><input type="number" value="${Number(ing.cost).toFixed(2)}" step="0.01" onchange="updateIngredient(${ing.id}, 'cost', parseFloat(this.value) || 0)"></td>
                     <td><input type="text" value="${ing.supplier}" onchange="updateIngredient(${ing.id}, 'supplier', this.value)"></td>
                     <td><button class="btn btn-danger" onclick="deleteIngredient(${ing.id})">Delete</button></td>
                 `;
             });
             saveToStorage();
         }
+
         function addIngredient() {
             const newId = ingredients.length > 0 ? Math.max(...ingredients.map(i => i.id)) + 1 : 1;
             ingredients.push({ id: newId, name: 'New Ingredient', category: 'Malt', unit: 'lb', cost: 0, supplier: '' });
             renderIngredients();
         }
+
         function updateIngredient(id, field, value) {
             const ing = ingredients.find(i => i.id === id);
             if (ing) {
-                ing[field] = value;
+                ing[field] = field === 'cost' ? (parseFloat(value) || 0) : value;
                 saveToStorage();
                 if (currentRecipeId) {
                     renderRecipeIngredients();
@@ -488,19 +486,26 @@
                 }
             }
         }
+
         function deleteIngredient(id) {
-            if (confirm('Are you sure?')) {
-                ingredients = ingredients.filter(i => i.id !== id);
-                renderIngredients();
-            }
+            if (!confirm('Are you sure?')) return;
+            ingredients = ingredients.filter(i => i.id !== id);
+            recipes.forEach(r => { r.ingredients = r.ingredients.filter(ri => ri.ingredientId !== id); });
+            renderIngredients();
+            if (currentRecipeId) { renderRecipeIngredients(); calculateRecipeCost(); }
+            saveToStorage();
         }
+
+        // ======= RECIPES =======
         function addRecipe() {
             const newId = recipes.length > 0 ? Math.max(...recipes.map(r => r.id)) + 1 : 1;
             recipes.push({
                 id: newId, name: 'New Recipe', style: '', batchSize: 1, ingredients: [],
                 servingSizes: [
-                    {name: 'Draft Pint', volume: 16, price: 7.00}, {name: 'Draft Half', volume: 8, price: 4.00},
-                    {name: '12oz Can', volume: 12, price: 3.50}, {name: '16oz Can', volume: 16, price: 4.50}
+                    {name: 'Draft Pint', volume: 16, price: 7.00},
+                    {name: 'Draft Half', volume: 8, price: 4.00},
+                    {name: '12oz Can', volume: 12, price: 3.50},
+                    {name: '16oz Can', volume: 16, price: 4.50}
                 ]
             });
             saveToStorage();
@@ -508,6 +513,7 @@
             document.getElementById('recipeSelector').value = newId;
             loadRecipe();
         }
+
         function updateRecipeSelectors() {
             [document.getElementById('recipeSelector'), document.getElementById('analysisRecipeSelector')].forEach(selector => {
                 const currentValue = selector.value;
@@ -521,6 +527,7 @@
                 selector.value = currentValue;
             });
         }
+
         function loadRecipe() {
             const recipeId = parseInt(document.getElementById('recipeSelector').value);
             if (!recipeId) {
@@ -536,6 +543,7 @@
             renderRecipeIngredients();
             calculateRecipeCost();
         }
+
         function renderRecipeIngredients() {
             const recipe = recipes.find(r => r.id === currentRecipeId);
             const tbody = document.getElementById('recipeIngredientsBody');
@@ -543,53 +551,60 @@
             recipe.ingredients.forEach((recIng, index) => {
                 const ingredient = ingredients.find(i => i.id === recIng.ingredientId);
                 if (!ingredient) return;
-                const totalCost = (recIng.quantity * ingredient.cost).toFixed(2);
+                const totalCost = (Number(recIng.quantity) * Number(ingredient.cost));
                 const row = tbody.insertRow();
                 row.innerHTML = `
                     <td><select onchange="updateRecipeIngredient(${index}, 'ingredientId', parseInt(this.value))">
                         ${ingredients.map(ing => `<option value="${ing.id}" ${ing.id === recIng.ingredientId ? 'selected' : ''}>${ing.name}</option>`).join('')}
                     </select></td>
                     <td class="readonly">${ingredient.category}</td>
-                    <td><input type="number" value="${recIng.quantity}" step="0.1" onchange="updateRecipeIngredient(${index}, 'quantity', parseFloat(this.value))"></td>
+                    <td><input type="number" value="${Number(recIng.quantity)}" step="0.1" onchange="updateRecipeIngredient(${index}, 'quantity', parseFloat(this.value) || 0)"></td>
                     <td class="readonly">${ingredient.unit}</td>
-                    <td class="readonly">$${ingredient.cost.toFixed(2)}</td>
-                    <td class="readonly">$${totalCost}</td>
+                    <td class="readonly">$${Number(ingredient.cost).toFixed(2)}</td>
+                    <td class="readonly">$${totalCost.toFixed(2)}</td>
                     <td><button class="btn btn-danger" onclick="deleteRecipeIngredient(${index})">Delete</button></td>
                 `;
             });
             saveToStorage();
         }
+
         function addRecipeIngredient() {
             const recipe = recipes.find(r => r.id === currentRecipeId);
+            if (!recipe) return;
             if (ingredients.length === 0) { alert('Please add ingredients first!'); return; }
             recipe.ingredients.push({ ingredientId: ingredients[0].id, quantity: 1 });
             renderRecipeIngredients();
             calculateRecipeCost();
         }
+
         function updateRecipeIngredient(index, field, value) {
             const recipe = recipes.find(r => r.id === currentRecipeId);
-            recipe.ingredients[index][field] = value;
+            recipe.ingredients[index][field] = field === 'quantity' ? (parseFloat(value) || 0) : value;
             renderRecipeIngredients();
             calculateRecipeCost();
         }
+
         function deleteRecipeIngredient(index) {
             const recipe = recipes.find(r => r.id === currentRecipeId);
             recipe.ingredients.splice(index, 1);
             renderRecipeIngredients();
             calculateRecipeCost();
         }
+
         function calculateRecipeCost() {
             const recipe = recipes.find(r => r.id === currentRecipeId);
+            if (!recipe) return;
             let totalCost = 0;
             recipe.ingredients.forEach(recIng => {
                 const ingredient = ingredients.find(i => i.id === recIng.ingredientId);
-                if (ingredient) totalCost += recIng.quantity * ingredient.cost;
+                if (ingredient) totalCost += (Number(recIng.quantity) || 0) * (Number(ingredient.cost) || 0);
             });
             document.getElementById('totalRecipeCost').textContent = `$${totalCost.toFixed(2)}`;
-            document.getElementById('displayBatchSize').textContent = `${recipe.batchSize} bbl`;
-            const costPerBbl = recipe.batchSize > 0 ? totalCost / recipe.batchSize : 0;
-            document.getElementById('costPerGallon').textContent = `$${costPerBbl.toFixed(2)}`;
+            document.getElementById('displayBatchSize').textContent = `${Number(recipe.batchSize) || 0} bbl`;
+            const costPerBbl = (Number(recipe.batchSize) > 0) ? totalCost / Number(recipe.batchSize) : 0;
+            document.getElementById('costPerBarrel').textContent = `$${costPerBbl.toFixed(2)}`;
         }
+
         function saveRecipe() {
             const recipe = recipes.find(r => r.id === currentRecipeId);
             recipe.name = document.getElementById('recipeName').value;
@@ -598,18 +613,25 @@
             saveToStorage();
             calculateRecipeCost();
             updateRecipeSelectors();
+            updateBatchRecipeSelector();
             alert('Recipe saved!');
         }
+
         function deleteRecipe() {
             if (confirm('Delete this recipe?')) {
                 recipes = recipes.filter(r => r.id !== currentRecipeId);
                 saveToStorage();
                 updateRecipeSelectors();
+                updateBatchRecipeSelector();
                 document.getElementById('recipeEditor').style.display = 'none';
                 document.getElementById('recipeSelector').value = '';
                 currentRecipeId = null;
+                renderBatches();
+                renderMonthlyCOGS();
             }
         }
+
+        // ======= ANALYSIS =======
         function loadAnalysis() {
             const recipeId = parseInt(document.getElementById('analysisRecipeSelector').value);
             if (!recipeId) {
@@ -620,15 +642,17 @@
             let totalCost = 0;
             recipe.ingredients.forEach(recIng => {
                 const ingredient = ingredients.find(i => i.id === recIng.ingredientId);
-                if (ingredient) totalCost += recIng.quantity * ingredient.cost;
+                if (ingredient) totalCost += (Number(recIng.quantity) || 0) * (Number(ingredient.cost) || 0);
             });
             const tbody = document.getElementById('analysisBody');
             tbody.innerHTML = '';
             recipe.servingSizes.forEach(serving => {
-                const servingsPerBatch = (recipe.batchSize * 31 * 128) / serving.volume;
-                const costPerServing = totalCost / servingsPerBatch;
-                const grossProfit = serving.price - costPerServing;
-                const marginPercent = (grossProfit / serving.price) * 100;
+                const servingsPerBatch = (Number(recipe.batchSize) * 31 * 128) / Number(serving.volume);
+                const safeServings = isFinite(servingsPerBatch) && servingsPerBatch > 0 ? servingsPerBatch : 0;
+                const costPerServing = safeServings > 0 ? totalCost / safeServings : 0;
+                const price = Number(serving.price) || 0;
+                const grossProfit = price - costPerServing;
+                const marginPercent = price > 0 ? (grossProfit / price) * 100 : 0;
                 let marginClass = 'margin-poor';
                 if (marginPercent >= 70) marginClass = 'margin-good';
                 else if (marginPercent >= 50) marginClass = 'margin-ok';
@@ -636,24 +660,234 @@
                 row.innerHTML = `
                     <td>${serving.name}</td>
                     <td>${serving.volume}</td>
-                    <td>${servingsPerBatch.toFixed(1)}</td>
+                    <td>${safeServings.toFixed(1)}</td>
                     <td>$${costPerServing.toFixed(2)}</td>
-                    <td><input type="number" value="${serving.price}" step="0.01" onchange="updateServingPrice(${recipeId}, '${serving.name}', parseFloat(this.value))" style="width: 80px;"></td>
+                    <td><input type="number" value="${price.toFixed(2)}" step="0.01" onchange="updateServingPrice(${recipeId}, '${serving.name.replace(/'/g,"\\'")}', parseFloat(this.value) || 0)" style="width: 80px;"></td>
                     <td>$${grossProfit.toFixed(2)}</td>
                     <td class="${marginClass}">${marginPercent.toFixed(1)}%</td>
                 `;
             });
             document.getElementById('analysisContent').style.display = 'block';
         }
+
         function updateServingPrice(recipeId, servingName, newPrice) {
             const recipe = recipes.find(r => r.id === recipeId);
             const serving = recipe.servingSizes.find(s => s.name === servingName);
             if (serving) {
-                serving.price = newPrice;
+                serving.price = Number(newPrice) || 0;
                 saveToStorage();
                 loadAnalysis();
             }
         }
+
+        // ======= BATCHES =======
+        function updateBatchRecipeSelector() {
+            const sel = document.getElementById('batchRecipe');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">Select recipe...</option>';
+            recipes.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.id;
+                opt.textContent = r.name;
+                sel.appendChild(opt);
+            });
+            sel.value = current;
+        }
+
+        function autoFillIngredientCost() {
+            const recipeId = parseInt(document.getElementById('batchRecipe').value);
+            const brewSize = parseFloat(document.getElementById('brewSize').value) || 0;
+            if (!recipeId || brewSize <= 0) { alert('Select a recipe and enter brewhouse size.'); return; }
+            const recipe = recipes.find(r => r.id === recipeId);
+            let totalCost = 0;
+            recipe.ingredients.forEach(recIng => {
+                const ingredient = ingredients.find(i => i.id === recIng.ingredientId);
+                if (ingredient) totalCost += (Number(recIng.quantity) || 0) * (Number(ingredient.cost) || 0);
+            });
+            const costPerBbl = (Number(recipe.batchSize) > 0) ? totalCost / Number(recipe.batchSize) : 0;
+            const est = costPerBbl * brewSize;
+            document.getElementById('costIngredients').value = est.toFixed(2);
+            updateBatchKPIs();
+        }
+
+        function getBatchFormData() {
+            const data = {
+                id: editingBatchId || Date.now(),
+                date: document.getElementById('batchDate').value,
+                batchId: document.getElementById('batchId').value.trim(),
+                recipeId: parseInt(document.getElementById('batchRecipe').value) || null,
+                brewSize: parseFloat(document.getElementById('brewSize').value) || 0,
+                packagedBbl: parseFloat(document.getElementById('packagedBbl').value) || 0,
+                costIngredients: parseFloat(document.getElementById('costIngredients').value) || 0,
+                costPackaging: parseFloat(document.getElementById('costPackaging').value) || 0,
+                costLabor: parseFloat(document.getElementById('costLabor').value) || 0,
+                costUtilities: parseFloat(document.getElementById('costUtilities').value) || 0,
+                costOther: parseFloat(document.getElementById('costOther').value) || 0
+            };
+            return data;
+        }
+
+        function batchTotals(b) {
+            const totalCost = (b.costIngredients + b.costPackaging + b.costLabor + b.costUtilities + b.costOther);
+            const yieldPct = b.brewSize > 0 ? (b.packagedBbl / b.brewSize) * 100 : 0;
+            const costPerPackaged = b.packagedBbl > 0 ? totalCost / b.packagedBbl : 0;
+            return { totalCost, yieldPct, costPerPackaged };
+        }
+
+        function updateBatchKPIs() {
+            const b = getBatchFormData();
+            const totals = batchTotals(b);
+            document.getElementById('kpiYield').textContent = `${totals.yieldPct.toFixed(1)}%`;
+            document.getElementById('kpiTotalCost').textContent = `$${totals.totalCost.toFixed(2)}`;
+            document.getElementById('kpiCostPerBbl').textContent = `$${totals.costPerPackaged.toFixed(2)}`;
+        }
+
+        ['batchDate','batchId','batchRecipe','brewSize','packagedBbl','costIngredients','costPackaging','costLabor','costUtilities','costOther'].forEach(id => {
+            document.addEventListener('input', function(e){
+                if (e.target && e.target.id === id) updateBatchKPIs();
+            });
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('change', updateBatchKPIs);
+        });
+
+        function saveBatch() {
+            const b = getBatchFormData();
+            if (!b.date) { alert('Please select a date.'); return; }
+            if (!b.recipeId) { alert('Please select a recipe.'); return; }
+            const idx = batches.findIndex(x => x.id === b.id);
+            if (idx >= 0) { batches[idx] = b; } else { batches.push(b); }
+            editingBatchId = null;
+            saveToStorage();
+            renderBatches();
+            renderMonthlyCOGS();
+            clearBatchForm();
+            alert('Batch saved.');
+        }
+
+        function clearBatchForm() {
+            editingBatchId = null;
+            document.getElementById('batchDate').value = '';
+            document.getElementById('batchId').value = '';
+            document.getElementById('batchRecipe').value = '';
+            document.getElementById('brewSize').value = '';
+            document.getElementById('packagedBbl').value = '';
+            document.getElementById('costIngredients').value = '';
+            document.getElementById('costPackaging').value = '0';
+            document.getElementById('costLabor').value = '0';
+            document.getElementById('costUtilities').value = '0';
+            document.getElementById('costOther').value = '0';
+            updateBatchKPIs();
+        }
+
+        function editBatch(id) {
+            const b = batches.find(x => x.id === id);
+            if (!b) return;
+            editingBatchId = b.id;
+            document.getElementById('batchDate').value = b.date;
+            document.getElementById('batchId').value = b.batchId;
+            document.getElementById('batchRecipe').value = b.recipeId;
+            document.getElementById('brewSize').value = b.brewSize;
+            document.getElementById('packagedBbl').value = b.packagedBbl;
+            document.getElementById('costIngredients').value = b.costIngredients;
+            document.getElementById('costPackaging').value = b.costPackaging;
+            document.getElementById('costLabor').value = b.costLabor;
+            document.getElementById('costUtilities').value = b.costUtilities;
+            document.getElementById('costOther').value = b.costOther;
+            updateBatchKPIs();
+            showTab('batches', document.querySelector('.tabs .tab:nth-child(4)'));
+        }
+
+        function deleteBatch(id) {
+            if (!confirm('Delete this batch?')) return;
+            batches = batches.filter(x => x.id !== id);
+            saveToStorage();
+            renderBatches();
+            renderMonthlyCOGS();
+        }
+
+        function renderBatches() {
+            const tbody = document.getElementById('batchTableBody');
+            tbody.innerHTML = '';
+            const sorted = [...batches].sort((a,b)=> (a.date||'').localeCompare(b.date));
+            sorted.forEach(b => {
+                const r = recipes.find(x => x.id === b.recipeId);
+                const name = r ? r.name : '(deleted recipe)';
+                const totals = batchTotals(b);
+                const tr = tbody.insertRow();
+                tr.innerHTML = `
+                    <td>${b.date || ''}</td>
+                    <td>${b.batchId || ''}</td>
+                    <td>${name}</td>
+                    <td>${(b.brewSize||0).toFixed(2)}</td>
+                    <td>${(b.packagedBbl||0).toFixed(2)}</td>
+                    <td>${totals.yieldPct.toFixed(1)}%</td>
+                    <td>$${totals.totalCost.toFixed(2)}</td>
+                    <td>$${totals.costPerPackaged.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editBatch(${b.id})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteBatch(${b.id})">Delete</button>
+                    </td>
+                `;
+            });
+        }
+
+        function setDefaultMonthPicker() {
+            const mp = document.getElementById('monthPicker');
+            if (!mp.value) {
+                const d = new Date();
+                const y = d.getFullYear();
+                const m = String(d.getMonth()+1).padStart(2,'0');
+                mp.value = `${y}-${m}`;
+            }
+        }
+
+        function renderMonthlyCOGS() {
+            const mp = document.getElementById('monthPicker');
+            if (!mp.value) setDefaultMonthPicker();
+            const [year, month] = mp.value.split('-').map(x=>parseInt(x));
+            const tbody = document.getElementById('monthlyTableBody');
+            tbody.innerHTML = '';
+            let sumPackaged = 0, sumCost = 0;
+
+            const filtered = batches.filter(b => {
+                if (!b.date) return false;
+                const d = new Date(b.date + 'T00:00:00');
+                return (d.getFullYear() === year && (d.getMonth()+1) === month);
+            }).sort((a,b)=> (a.date||'').localeCompare(b.date));
+
+            filtered.forEach(b => {
+                const totals = batchTotals(b);
+                sumPackaged += b.packagedBbl || 0;
+                sumCost += totals.totalCost;
+                const r = recipes.find(x => x.id === b.recipeId);
+                const name = r ? r.name : '(deleted recipe)';
+                const tr = tbody.insertRow();
+                tr.innerHTML = `
+                    <td>${b.date}</td>
+                    <td>${b.batchId || ''}</td>
+                    <td>${name}</td>
+                    <td>${(b.packagedBbl||0).toFixed(2)}</td>
+                    <td>$${totals.totalCost.toFixed(2)}</td>
+                    <td>$${totals.costPerPackaged.toFixed(2)}</td>
+                `;
+            });
+
+            document.getElementById('mPackaged').textContent = (sumPackaged || 0).toFixed(2);
+            document.getElementById('mCOGS').textContent = `$${(sumCost || 0).toFixed(2)}`;
+            const avg = (sumPackaged > 0) ? (sumCost / sumPackaged) : 0;
+            document.getElementById('mCostPerBbl').textContent = `$${avg.toFixed(2)}`;
+        }
+
+        // ======= INIT =======
+        (function initDefaults(){
+            const el = document.getElementById('batchDate');
+            if (el && !el.value) {
+                const d = new Date();
+                el.value = d.toISOString().slice(0,10);
+            }
+        })();
+
         loadFromStorage();
     </script>
 </body>
