@@ -69,8 +69,9 @@
         <div class="tabs">
             <button class="tab active" onclick="showTab('ingredients', this)">Ingredient Database</button>
             <button class="tab" onclick="showTab('recipes', this)">Recipes</button>
-            <button class="tab" onclick="showTab('analysis', this)">Cost Analysis</button>
             <button class="tab" onclick="showTab('batches', this)">Batch Records</button>
+            <!-- Updated tab name from Cost Analysis to Margin Analysis -->
+            <button class="tab" onclick="showTab('analysis', this)">Margin Analysis</button>
         </div>
 
         <!-- INGREDIENTS TAB -->
@@ -167,98 +168,45 @@
             </div>
         </div>
 
-        <!-- ANALYSIS TAB -->
-        <div id="analysis" class="tab-content">
-            <h2>Cost & Margin Analysis</h2>
-            <div class="actions">
-                <select id="analysisRecipeSelector" onchange="loadAnalysis()" style="width: 300px;">
-                    <option value="">Select a recipe to analyze...</option>
-                </select>
-            </div>
-            <div id="analysisContent" style="display: none;">
-                <h3 style="margin-top: 30px;">Serving Size Analysis</h3>
-                <table id="analysisTable">
-                    <thead>
-                        <tr>
-                            <th>Serving Size</th>
-                            <th>Volume (oz)</th>
-                            <th>Servings per Batch</th>
-                            <th>Cost per Serving</th>
-                            <th>Selling Price</th>
-                            <th>Gross Profit</th>
-                            <th>Margin %</th>
-                        </tr>
-                    </thead>
-                    <tbody id="analysisBody"></tbody>
-                </table>
-            </div>
-        </div>
-
         <!-- BATCHES TAB -->
         <div id="batches" class="tab-content">
             <h2>Batch Records</h2>
-            <p class="muted">Track actual batch costs and packaged yield to monitor monthly COGS.</p>
+            <p class="muted">Track batch production, volume racked, and yield percentage for reporting.</p>
             <div class="recipe-header">
                 <h3>New / Edit Batch</h3>
-                <div class="grid grid-4">
+                <div class="grid grid-3">
                     <div class="info-group">
-                        <label>Date</label>
+                        <label>Date Brewed</label>
                         <input type="date" id="batchDate">
                     </div>
                     <div class="info-group">
-                        <label>Batch ID / Lot</label>
-                        <input type="text" id="batchId" placeholder="e.g., 2025-10-15-WCIPA-01">
-                    </div>
-                    <div class="info-group">
                         <label>Recipe</label>
-                        <select id="batchRecipe"></select>
+                        <select id="batchRecipe" onchange="updateBatchKPIs()">
+                            <option value="">Select recipe...</option>
+                        </select>
                     </div>
                     <div class="info-group">
-                        <label>Brewhouse Size (bbls)</label>
-                        <input type="number" id="brewSize" step="0.1" placeholder="e.g., 7">
-                    </div>
-                    <div class="info-group">
-                        <label>Actual Packaged (bbls)</label>
-                        <input type="number" id="packagedBbl" step="0.01" placeholder="e.g., 6.3">
-                    </div>
-                    <div class="info-group">
-                        <label>Ingredient Cost ($)</label>
-                        <input type="number" id="costIngredients" step="0.01" placeholder="auto from recipe or enter">
-                    </div>
-                    <div class="info-group">
-                        <label>Packaging Cost ($)</label>
-                        <input type="number" id="costPackaging" step="0.01" value="0">
-                    </div>
-                    <div class="info-group">
-                        <label>Labor ($)</label>
-                        <input type="number" id="costLabor" step="0.01" value="0">
-                    </div>
-                    <div class="info-group">
-                        <label>Utilities / Overhead ($)</label>
-                        <input type="number" id="costUtilities" step="0.01" value="0">
-                    </div>
-                    <div class="info-group">
-                        <label>Other Cost ($)</label>
-                        <input type="number" id="costOther" step="0.01" value="0">
+                        <label>Volume Racked (bbls)</label>
+                        <input type="number" id="volumeRacked" step="0.01" placeholder="e.g., 6.3" oninput="updateBatchKPIs()">
                     </div>
                 </div>
                 <div class="actions">
-                    <button class="btn btn-neutral" onclick="autoFillIngredientCost()">⚙️ Auto-calc Ingredient Cost</button>
                     <button class="btn btn-success" onclick="saveBatch()">💾 Add / Update Batch</button>
                     <button class="btn btn-danger" onclick="clearBatchForm()">Clear Form</button>
                 </div>
                 <div class="kpi">
                     <div>
-                        <div class="muted">Yield % (Packaged / Brew)</div>
+                        <div class="muted">Recipe Batch Size</div>
+                        <div id="kpiRecipeBatchSize" class="summary-value">0.00 bbl</div>
+                    </div>
+                    <div>
+                        <div class="muted">Yield % (Racked / Recipe Size)</div>
                         <div id="kpiYield" class="summary-value" style="color:#2ecc71">0%</div>
                     </div>
+                    <!-- Added cost per BBL yielded KPI -->
                     <div>
-                        <div class="muted">Total Cost ($)</div>
-                        <div id="kpiTotalCost" class="summary-value">$0.00</div>
-                    </div>
-                    <div>
-                        <div class="muted">Cost per Packaged bbl</div>
-                        <div id="kpiCostPerBbl" class="summary-value">$0.00</div>
+                        <div class="muted">Cost per BBL Yielded</div>
+                        <div id="kpiCostPerBBL" class="summary-value" style="color:#e67e22">$0.00</div>
                     </div>
                 </div>
             </div>
@@ -267,52 +215,219 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Batch ID</th>
+                        <th>Date Brewed</th>
                         <th>Recipe</th>
-                        <th>Brew bbl</th>
-                        <th>Packaged bbl</th>
+                        <th>Recipe Size (bbl)</th>
+                        <th>Volume Racked (bbl)</th>
                         <th>Yield %</th>
-                        <th>Total Cost</th>
-                        <th>$/bbl (packaged)</th>
+                        <!-- Added cost per BBL yielded column -->
+                        <th>Cost/BBL Yielded</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="batchTableBody"></tbody>
             </table>
 
-            <h3>Monthly COGS</h3>
+            <h3>Monthly Volume Report</h3>
             <div class="actions">
-                <label class="muted" for="monthPicker">Month</label>
+                <label class="muted" for="monthPicker">Select Month/Year:</label>
                 <input type="month" id="monthPicker" style="max-width:200px;">
                 <button class="btn btn-primary" onclick="renderMonthlyCOGS()">Refresh</button>
             </div>
             <div class="kpi">
                 <div>
-                    <div class="muted">Total Packaged (bbl)</div>
-                    <div id="mPackaged" class="summary-value">0.00</div>
+                    <div class="muted">Total Volume Racked (bbl)</div>
+                    <div id="mPackaged" class="summary-value" style="color:#3498db">0.00</div>
                 </div>
                 <div>
-                    <div class="muted">Total COGS ($)</div>
-                    <div id="mCOGS" class="summary-value">$0.00</div>
+                    <div class="muted">Number of Batches</div>
+                    <div id="mBatchCount" class="summary-value">0</div>
                 </div>
                 <div>
-                    <div class="muted">Avg $/bbl (packaged)</div>
-                    <div id="mCostPerBbl" class="summary-value">$0.00</div>
+                    <div class="muted">Average Yield %</div>
+                    <div id="mAvgYield" class="summary-value">0%</div>
+                </div>
+                <!-- Added average cost per BBL yielded in monthly report -->
+                <div>
+                    <div class="muted">Avg Cost per BBL Yielded</div>
+                    <div id="mAvgCostPerBBL" class="summary-value" style="color:#e67e22">$0.00</div>
                 </div>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Batch ID</th>
+                        <th>Date Brewed</th>
                         <th>Recipe</th>
-                        <th>Packaged bbl</th>
-                        <th>Total Cost</th>
-                        <th>$ / bbl</th>
+                        <th>Recipe Size (bbl)</th>
+                        <th>Volume Racked (bbl)</th>
+                        <th>Yield %</th>
+                        <!-- Added cost per BBL yielded in monthly table -->
+                        <th>Cost/BBL Yielded</th>
                     </tr>
                 </thead>
                 <tbody id="monthlyTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- ANALYSIS TAB -->
+        <!-- Renamed to Margin Analysis and completely redesigned for sales tracking -->
+        <div id="analysis" class="tab-content">
+            <h2>Margin Analysis - Sales Tracking</h2>
+            <p class="muted">Track sales by beer and unit size for a specific time period to calculate gross profit and margin.</p>
+            
+            <div class="recipe-header">
+                <h3>Add Sales Entry</h3>
+                <div class="grid grid-3">
+                    <div class="info-group">
+                        <label>Start Date</label>
+                        <input type="date" id="salesStartDate">
+                    </div>
+                    <div class="info-group">
+                        <label>End Date</label>
+                        <input type="date" id="salesEndDate">
+                    </div>
+                    <div class="info-group">
+                        <label>Recipe</label>
+                        <select id="salesRecipe" onchange="updateSalesKPIs()">
+                            <option value="">Select recipe...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <h4 style="margin-top: 20px;">Units Sold & Pricing</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Size</th>
+                            <th>Volume (oz)</th>
+                            <th>Units Sold</th>
+                            <th>Sale Price per Unit</th>
+                            <th>Cost per Unit</th>
+                            <th>Gross Profit</th>
+                            <th>Margin %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>16oz</td>
+                            <td>16</td>
+                            <td><input type="number" id="units16oz" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
+                            <td><input type="number" id="price16oz" value="0" min="0" step="0.01" oninput="updateSalesKPIs()"></td>
+                            <td class="readonly" id="cost16oz">$0.00</td>
+                            <td class="readonly" id="profit16oz">$0.00</td>
+                            <td class="readonly" id="margin16oz">0%</td>
+                        </tr>
+                        <tr>
+                            <td>10oz</td>
+                            <td>10</td>
+                            <td><input type="number" id="units10oz" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
+                            <td><input type="number" id="price10oz" value="0" min="0" step="0.01" oninput="updateSalesKPIs()"></td>
+                            <td class="readonly" id="cost10oz">$0.00</td>
+                            <td class="readonly" id="profit10oz">$0.00</td>
+                            <td class="readonly" id="margin10oz">0%</td>
+                        </tr>
+                        <tr>
+                            <td>Pitcher</td>
+                            <td>64</td>
+                            <td><input type="number" id="unitsPitcher" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
+                            <td><input type="number" id="pricePitcher" value="0" min="0" step="0.01" oninput="updateSalesKPIs()"></td>
+                            <td class="readonly" id="costPitcher">$0.00</td>
+                            <td class="readonly" id="profitPitcher">$0.00</td>
+                            <td class="readonly" id="marginPitcher">0%</td>
+                        </tr>
+                        <tr>
+                            <td>Growler</td>
+                            <td>64</td>
+                            <td><input type="number" id="unitsGrowler" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
+                            <td><input type="number" id="priceGrowler" value="0" min="0" step="0.01" oninput="updateSalesKPIs()"></td>
+                            <td class="readonly" id="costGrowler">$0.00</td>
+                            <td class="readonly" id="profitGrowler">$0.00</td>
+                            <td class="readonly" id="marginGrowler">0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="summary-box">
+                    <h3>Entry Totals</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-label">Total Units Sold</div>
+                            <div class="summary-value" id="totalUnitsSold">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Total Revenue</div>
+                            <div class="summary-value" id="totalRevenue">$0.00</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Total Cost</div>
+                            <div class="summary-value" id="totalCost">$0.00</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Gross Profit</div>
+                            <div class="summary-value" id="grossProfit">$0.00</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Gross Margin %</div>
+                            <div class="summary-value" id="grossMargin">0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-success" onclick="saveSalesEntry()">💾 Save Sales Entry</button>
+                    <button class="btn btn-danger" onclick="clearSalesForm()">Clear Form</button>
+                </div>
+            </div>
+
+            <h3>Sales Report</h3>
+            <div class="actions">
+                <label class="muted">Filter by Date Range:</label>
+                <input type="date" id="reportStartDate" style="max-width:180px;">
+                <input type="date" id="reportEndDate" style="max-width:180px;">
+                <button class="btn btn-primary" onclick="renderSalesReport()">Refresh Report</button>
+            </div>
+            
+            <div class="summary-box" style="margin-top: 20px;">
+                <h3>Report Summary</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">Total Entries</div>
+                        <div class="summary-value" id="reportEntries">0</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Total Units</div>
+                        <div class="summary-value" id="reportUnits">0</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Total Revenue</div>
+                        <div class="summary-value" id="reportRevenue">$0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Total Gross Profit</div>
+                        <div class="summary-value" id="reportProfit">$0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Avg Margin %</div>
+                        <div class="summary-value" id="reportMargin">0%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date Range</th>
+                        <th>Recipe</th>
+                        <th>Size</th>
+                        <th>Units Sold</th>
+                        <th>Price/Unit</th>
+                        <th>Revenue</th>
+                        <th>Gross Profit</th>
+                        <th>Margin %</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="salesReportBody"></tbody>
             </table>
         </div>
     </div>
@@ -322,17 +437,21 @@
         let ingredients = [];
         let recipes = [];
         let batches = [];
+        let salesEntries = [];
         let currentRecipeId = null;
         let editingBatchId = null;
+        let editingSalesId = null;
 
         // ======= STORAGE =======
         function loadFromStorage() {
             const savedIngredients = localStorage.getItem('breweryIngredients');
             const savedRecipes = localStorage.getItem('breweryRecipes');
             const savedBatches = localStorage.getItem('breweryBatches');
+            const savedSales = localStorage.getItem('brewerySalesEntries');
             if (savedIngredients) ingredients = JSON.parse(savedIngredients);
             if (savedRecipes) recipes = JSON.parse(savedRecipes);
             if (savedBatches) batches = JSON.parse(savedBatches);
+            if (savedSales) salesEntries = JSON.parse(savedSales);
             if (ingredients.length === 0 && recipes.length === 0) {
                 initializeSampleData();
             } else {
@@ -340,8 +459,11 @@
                 updateRecipeSelectors();
             }
             updateBatchRecipeSelector();
+            updateSalesRecipeSelector();
             renderBatches();
             setDefaultMonthPicker();
+            renderMonthlyCOGS();
+            renderSalesReport();
         }
 
         function saveToStorage() {
@@ -349,13 +471,14 @@
                 localStorage.setItem('breweryIngredients', JSON.stringify(ingredients));
                 localStorage.setItem('breweryRecipes', JSON.stringify(recipes));
                 localStorage.setItem('breweryBatches', JSON.stringify(batches));
+                localStorage.setItem('brewerySalesEntries', JSON.stringify(salesEntries));
             } catch (e) {
                 console.log('localStorage not available');
             }
         }
 
         function exportData() {
-            const data = { ingredients, recipes, batches, exportDate: new Date().toISOString() };
+            const data = { ingredients, recipes, batches, salesEntries, exportDate: new Date().toISOString() };
             const dataStr = JSON.stringify(data, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
@@ -381,12 +504,15 @@
                             ingredients = data.ingredients;
                             recipes = data.recipes;
                             batches = data.batches || [];
+                            salesEntries = data.salesEntries || [];
                             saveToStorage();
                             renderIngredients();
                             updateRecipeSelectors();
                             updateBatchRecipeSelector();
+                            updateSalesRecipeSelector();
                             renderBatches();
                             renderMonthlyCOGS();
+                            renderSalesReport();
                             alert('Data imported successfully!');
                             document.getElementById('recipeSelector').value = '';
                             document.getElementById('recipeEditor').style.display = 'none';
@@ -428,13 +554,26 @@
                     {name: '12oz Can', volume: 12, price: 3.50}, {name: '16oz Can', volume: 16, price: 4.50}
                 ]
             }];
+            // Add sample sales data
+            salesEntries = [
+                {
+                    id: 1678886400000, startDate: '2023-03-15', endDate: '2023-03-15', recipeId: 1, size: '16oz', sizeOz: 16,
+                    units: 100, pricePerUnit: 4.50, costPerUnit: 1.25, revenue: 450.00, cost: 125.00, profit: 325.00, margin: 72.22
+                },
+                {
+                    id: 1678972800000, startDate: '2023-03-16', endDate: '2023-03-16', recipeId: 1, size: '12oz Can', sizeOz: 12,
+                    units: 150, pricePerUnit: 3.50, costPerUnit: 0.94, revenue: 525.00, cost: 140.63, profit: 384.38, margin: 73.22
+                }
+            ];
             saveToStorage();
             renderIngredients();
             updateRecipeSelectors();
             updateBatchRecipeSelector();
+            updateSalesRecipeSelector();
             renderBatches();
             setDefaultMonthPicker();
             renderMonthlyCOGS();
+            renderSalesReport();
         }
 
         // ======= TABS =======
@@ -453,7 +592,7 @@
             ingredients.forEach(ing => {
                 const row = tbody.insertRow();
                 row.innerHTML = `
-                    <td><input type="text" value="${ing.name}" onchange="updateIngredient(${ig.id}, 'name', this.value)"></td>
+                    <td><input type="text" value="${ing.name}" onchange="updateIngredient(${ing.id}, 'name', this.value)"></td>
                     <td><select onchange="updateIngredient(${ing.id}, 'category', this.value)">
                         <option ${ing.category === 'Malt' ? 'selected' : ''}>Malt</option>
                         <option ${ing.category === 'Hops' ? 'selected' : ''}>Hops</option>
@@ -484,6 +623,9 @@
                     renderRecipeIngredients();
                     calculateRecipeCost();
                 }
+                // Update sales KPIs if ingredient cost changes
+                updateSalesKPIs();
+                renderSalesReport(); // Re-render to reflect potential changes in cost per unit
             }
         }
 
@@ -494,6 +636,9 @@
             renderIngredients();
             if (currentRecipeId) { renderRecipeIngredients(); calculateRecipeCost(); }
             saveToStorage();
+            // Update sales KPIs after ingredient deletion
+            updateSalesKPIs();
+            renderSalesReport();
         }
 
         // ======= RECIPES =======
@@ -510,22 +655,24 @@
             });
             saveToStorage();
             updateRecipeSelectors();
+            updateBatchRecipeSelector();
+            updateSalesRecipeSelector();
             document.getElementById('recipeSelector').value = newId;
             loadRecipe();
         }
 
         function updateRecipeSelectors() {
-            [document.getElementById('recipeSelector'), document.getElementById('analysisRecipeSelector')].forEach(selector => {
-                const currentValue = selector.value;
-                selector.innerHTML = '<option value="">Select a recipe...</option>';
-                recipes.forEach(recipe => {
-                    const option = document.createElement('option');
-                    option.value = recipe.id;
-                    option.textContent = recipe.name;
-                    selector.appendChild(option);
-                });
-                selector.value = currentValue;
+            const selector = document.getElementById('recipeSelector');
+            if (!selector) return;
+            const currentValue = selector.value;
+            selector.innerHTML = '<option value="">Select a recipe...</option>';
+            recipes.forEach(recipe => {
+                const option = document.createElement('option');
+                option.value = recipe.id;
+                option.textContent = recipe.name;
+                selector.appendChild(option);
             });
+            selector.value = currentValue;
         }
 
         function loadRecipe() {
@@ -614,6 +761,7 @@
             calculateRecipeCost();
             updateRecipeSelectors();
             updateBatchRecipeSelector();
+            updateSalesRecipeSelector();
             alert('Recipe saved!');
         }
 
@@ -623,62 +771,17 @@
                 saveToStorage();
                 updateRecipeSelectors();
                 updateBatchRecipeSelector();
+                updateSalesRecipeSelector();
                 document.getElementById('recipeEditor').style.display = 'none';
                 document.getElementById('recipeSelector').value = '';
                 currentRecipeId = null;
                 renderBatches();
                 renderMonthlyCOGS();
+                renderSalesReport(); // Re-render sales report as recipe might be used
             }
         }
 
-        // ======= ANALYSIS =======
-        function loadAnalysis() {
-            const recipeId = parseInt(document.getElementById('analysisRecipeSelector').value);
-            if (!recipeId) {
-                document.getElementById('analysisContent').style.display = 'none';
-                return;
-            }
-            const recipe = recipes.find(r => r.id === recipeId);
-            let totalCost = 0;
-            recipe.ingredients.forEach(recIng => {
-                const ingredient = ingredients.find(i => i.id === recIng.ingredientId);
-                if (ingredient) totalCost += (Number(recIng.quantity) || 0) * (Number(ingredient.cost) || 0);
-            });
-            const tbody = document.getElementById('analysisBody');
-            tbody.innerHTML = '';
-            recipe.servingSizes.forEach(serving => {
-                const servingsPerBatch = (Number(recipe.batchSize) * 31 * 128) / Number(serving.volume);
-                const safeServings = isFinite(servingsPerBatch) && servingsPerBatch > 0 ? servingsPerBatch : 0;
-                const costPerServing = safeServings > 0 ? totalCost / safeServings : 0;
-                const price = Number(serving.price) || 0;
-                const grossProfit = price - costPerServing;
-                const marginPercent = price > 0 ? (grossProfit / price) * 100 : 0;
-                let marginClass = 'margin-poor';
-                if (marginPercent >= 70) marginClass = 'margin-good';
-                else if (marginPercent >= 50) marginClass = 'margin-ok';
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${serving.name}</td>
-                    <td>${serving.volume}</td>
-                    <td>${safeServings.toFixed(1)}</td>
-                    <td>$${costPerServing.toFixed(2)}</td>
-                    <td><input type="number" value="${price.toFixed(2)}" step="0.01" onchange="updateServingPrice(${recipeId}, '${serving.name.replace(/'/g,"\\'")}', parseFloat(this.value) || 0)" style="width: 80px;"></td>
-                    <td>$${grossProfit.toFixed(2)}</td>
-                    <td class="${marginClass}">${marginPercent.toFixed(1)}%</td>
-                `;
-            });
-            document.getElementById('analysisContent').style.display = 'block';
-        }
-
-        function updateServingPrice(recipeId, servingName, newPrice) {
-            const recipe = recipes.find(r => r.id === recipeId);
-            const serving = recipe.servingSizes.find(s => s.name === servingName);
-            if (serving) {
-                serving.price = Number(newPrice) || 0;
-                saveToStorage();
-                loadAnalysis();
-            }
-        }
+        // ======= ANALYSIS - Removed old analysis code, replaced with sales tracking =======
 
         // ======= BATCHES =======
         function updateBatchRecipeSelector() {
@@ -695,66 +798,58 @@
             sel.value = current;
         }
 
-        function autoFillIngredientCost() {
-            const recipeId = parseInt(document.getElementById('batchRecipe').value);
-            const brewSize = parseFloat(document.getElementById('brewSize').value) || 0;
-            if (!recipeId || brewSize <= 0) { alert('Select a recipe and enter brewhouse size.'); return; }
+        function getBatchFormData() {
+            const data = {
+                id: editingBatchId || Date.now(),
+                date: document.getElementById('batchDate').value,
+                recipeId: parseInt(document.getElementById('batchRecipe').value) || null,
+                volumeRacked: parseFloat(document.getElementById('volumeRacked').value) || 0
+            };
+            return data;
+        }
+
+        function getRecipeCost(recipeId) {
             const recipe = recipes.find(r => r.id === recipeId);
+            if (!recipe) return 0;
             let totalCost = 0;
             recipe.ingredients.forEach(recIng => {
                 const ingredient = ingredients.find(i => i.id === recIng.ingredientId);
                 if (ingredient) totalCost += (Number(recIng.quantity) || 0) * (Number(ingredient.cost) || 0);
             });
-            const costPerBbl = (Number(recipe.batchSize) > 0) ? totalCost / Number(recipe.batchSize) : 0;
-            const est = costPerBbl * brewSize;
-            document.getElementById('costIngredients').value = est.toFixed(2);
-            updateBatchKPIs();
-        }
-
-        function getBatchFormData() {
-            const data = {
-                id: editingBatchId || Date.now(),
-                date: document.getElementById('batchDate').value,
-                batchId: document.getElementById('batchId').value.trim(),
-                recipeId: parseInt(document.getElementById('batchRecipe').value) || null,
-                brewSize: parseFloat(document.getElementById('brewSize').value) || 0,
-                packagedBbl: parseFloat(document.getElementById('packagedBbl').value) || 0,
-                costIngredients: parseFloat(document.getElementById('costIngredients').value) || 0,
-                costPackaging: parseFloat(document.getElementById('costPackaging').value) || 0,
-                costLabor: parseFloat(document.getElementById('costLabor').value) || 0,
-                costUtilities: parseFloat(document.getElementById('costUtilities').value) || 0,
-                costOther: parseFloat(document.getElementById('costOther').value) || 0
-            };
-            return data;
+            return totalCost;
         }
 
         function batchTotals(b) {
-            const totalCost = (b.costIngredients + b.costPackaging + b.costLabor + b.costUtilities + b.costOther);
-            const yieldPct = b.brewSize > 0 ? (b.packagedBbl / b.brewSize) * 100 : 0;
-            const costPerPackaged = b.packagedBbl > 0 ? totalCost / b.packagedBbl : 0;
-            return { totalCost, yieldPct, costPerPackaged };
+            const recipe = recipes.find(r => r.id === b.recipeId);
+            const recipeBatchSize = recipe ? (Number(recipe.batchSize) || 0) : 0;
+            const yieldPct = recipeBatchSize > 0 ? (b.volumeRacked / recipeBatchSize) * 100 : 0;
+            const recipeCost = getRecipeCost(b.recipeId);
+            const costPerBBL = b.volumeRacked > 0 ? recipeCost / b.volumeRacked : 0;
+            return { recipeBatchSize, yieldPct, costPerBBL };
         }
 
         function updateBatchKPIs() {
             const b = getBatchFormData();
             const totals = batchTotals(b);
+            document.getElementById('kpiRecipeBatchSize').textContent = `${totals.recipeBatchSize.toFixed(2)} bbl`;
             document.getElementById('kpiYield').textContent = `${totals.yieldPct.toFixed(1)}%`;
-            document.getElementById('kpiTotalCost').textContent = `$${totals.totalCost.toFixed(2)}`;
-            document.getElementById('kpiCostPerBbl').textContent = `$${totals.costPerPackaged.toFixed(2)}`;
+            document.getElementById('kpiCostPerBBL').textContent = `$${totals.costPerBBL.toFixed(2)}`;
         }
 
-        ['batchDate','batchId','batchRecipe','brewSize','packagedBbl','costIngredients','costPackaging','costLabor','costUtilities','costOther'].forEach(id => {
-            document.addEventListener('input', function(e){
-                if (e.target && e.target.id === id) updateBatchKPIs();
-            });
+        ['batchDate','batchRecipe','volumeRacked'].forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.addEventListener('change', updateBatchKPIs);
+            if (el) {
+                el.addEventListener('input', updateBatchKPIs);
+                el.addEventListener('change', updateBatchKPIs);
+            }
         });
+
 
         function saveBatch() {
             const b = getBatchFormData();
             if (!b.date) { alert('Please select a date.'); return; }
             if (!b.recipeId) { alert('Please select a recipe.'); return; }
+            if (!b.volumeRacked || b.volumeRacked <= 0) { alert('Please enter volume racked.'); return; }
             const idx = batches.findIndex(x => x.id === b.id);
             if (idx >= 0) { batches[idx] = b; } else { batches.push(b); }
             editingBatchId = null;
@@ -768,15 +863,8 @@
         function clearBatchForm() {
             editingBatchId = null;
             document.getElementById('batchDate').value = '';
-            document.getElementById('batchId').value = '';
             document.getElementById('batchRecipe').value = '';
-            document.getElementById('brewSize').value = '';
-            document.getElementById('packagedBbl').value = '';
-            document.getElementById('costIngredients').value = '';
-            document.getElementById('costPackaging').value = '0';
-            document.getElementById('costLabor').value = '0';
-            document.getElementById('costUtilities').value = '0';
-            document.getElementById('costOther').value = '0';
+            document.getElementById('volumeRacked').value = '';
             updateBatchKPIs();
         }
 
@@ -785,17 +873,10 @@
             if (!b) return;
             editingBatchId = b.id;
             document.getElementById('batchDate').value = b.date;
-            document.getElementById('batchId').value = b.batchId;
             document.getElementById('batchRecipe').value = b.recipeId;
-            document.getElementById('brewSize').value = b.brewSize;
-            document.getElementById('packagedBbl').value = b.packagedBbl;
-            document.getElementById('costIngredients').value = b.costIngredients;
-            document.getElementById('costPackaging').value = b.costPackaging;
-            document.getElementById('costLabor').value = b.costLabor;
-            document.getElementById('costUtilities').value = b.costUtilities;
-            document.getElementById('costOther').value = b.costOther;
+            document.getElementById('volumeRacked').value = b.volumeRacked;
             updateBatchKPIs();
-            showTab('batches', document.querySelector('.tabs .tab:nth-child(4)'));
+            showTab('batches', document.querySelector('.tabs .tab:nth-child(3)'));
         }
 
         function deleteBatch(id) {
@@ -809,7 +890,7 @@
         function renderBatches() {
             const tbody = document.getElementById('batchTableBody');
             tbody.innerHTML = '';
-            const sorted = [...batches].sort((a,b)=> (a.date||'').localeCompare(b.date));
+            const sorted = [...batches].sort((a,b)=> (b.date||'').localeCompare(a.date||''));
             sorted.forEach(b => {
                 const r = recipes.find(x => x.id === b.recipeId);
                 const name = r ? r.name : '(deleted recipe)';
@@ -817,13 +898,11 @@
                 const tr = tbody.insertRow();
                 tr.innerHTML = `
                     <td>${b.date || ''}</td>
-                    <td>${b.batchId || ''}</td>
                     <td>${name}</td>
-                    <td>${(b.brewSize||0).toFixed(2)}</td>
-                    <td>${(b.packagedBbl||0).toFixed(2)}</td>
+                    <td>${totals.recipeBatchSize.toFixed(2)}</td>
+                    <td>${(b.volumeRacked||0).toFixed(2)}</td>
                     <td>${totals.yieldPct.toFixed(1)}%</td>
-                    <td>$${totals.totalCost.toFixed(2)}</td>
-                    <td>$${totals.costPerPackaged.toFixed(2)}</td>
+                    <td>$${totals.costPerBBL.toFixed(2)}</td>
                     <td>
                         <button class="btn btn-primary" onclick="editBatch(${b.id})">Edit</button>
                         <button class="btn btn-danger" onclick="deleteBatch(${b.id})">Delete</button>
@@ -848,7 +927,10 @@
             const [year, month] = mp.value.split('-').map(x=>parseInt(x));
             const tbody = document.getElementById('monthlyTableBody');
             tbody.innerHTML = '';
-            let sumPackaged = 0, sumCost = 0;
+            let sumVolumeRacked = 0;
+            let sumYieldPct = 0;
+            let sumCostPerBBL = 0;
+            let batchCount = 0;
 
             const filtered = batches.filter(b => {
                 if (!b.date) return false;
@@ -858,33 +940,324 @@
 
             filtered.forEach(b => {
                 const totals = batchTotals(b);
-                sumPackaged += b.packagedBbl || 0;
-                sumCost += totals.totalCost;
+                sumVolumeRacked += b.volumeRacked || 0;
+                sumYieldPct += totals.yieldPct;
+                sumCostPerBBL += totals.costPerBBL;
+                batchCount++;
                 const r = recipes.find(x => x.id === b.recipeId);
                 const name = r ? r.name : '(deleted recipe)';
                 const tr = tbody.insertRow();
                 tr.innerHTML = `
                     <td>${b.date}</td>
-                    <td>${b.batchId || ''}</td>
                     <td>${name}</td>
-                    <td>${(b.packagedBbl||0).toFixed(2)}</td>
-                    <td>$${totals.totalCost.toFixed(2)}</td>
-                    <td>$${totals.costPerPackaged.toFixed(2)}</td>
+                    <td>${totals.recipeBatchSize.toFixed(2)}</td>
+                    <td>${(b.volumeRacked||0).toFixed(2)}</td>
+                    <td>${totals.yieldPct.toFixed(1)}%</td>
+                    <td>$${totals.costPerBBL.toFixed(2)}</td>
                 `;
             });
 
-            document.getElementById('mPackaged').textContent = (sumPackaged || 0).toFixed(2);
-            document.getElementById('mCOGS').textContent = `$${(sumCost || 0).toFixed(2)}`;
-            const avg = (sumPackaged > 0) ? (sumCost / sumPackaged) : 0;
-            document.getElementById('mCostPerBbl').textContent = `$${avg.toFixed(2)}`;
+            document.getElementById('mPackaged').textContent = (sumVolumeRacked || 0).toFixed(2);
+            document.getElementById('mBatchCount').textContent = batchCount;
+            const avgYield = batchCount > 0 ? (sumYieldPct / batchCount) : 0;
+            document.getElementById('mAvgYield').textContent = `${avgYield.toFixed(1)}%`;
+            const avgCostPerBBL = batchCount > 0 ? (sumCostPerBBL / batchCount) : 0;
+            document.getElementById('mAvgCostPerBBL').textContent = `$${avgCostPerBBL.toFixed(2)}`;
         }
+
+        // ======= SALES / MARGIN ANALYSIS =======
+
+        function updateSalesRecipeSelector() {
+            const sel = document.getElementById('salesRecipe');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">Select recipe...</option>';
+            recipes.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.id;
+                opt.textContent = r.name;
+                sel.appendChild(opt);
+            });
+            sel.value = current;
+        }
+
+        function updateSalesKPIs() {
+            const recipeId = parseInt(document.getElementById('salesRecipe').value);
+            if (!recipeId) {
+                // Clear all calculations if no recipe selected
+                ['16oz', '10oz', 'Pitcher', 'Growler'].forEach(size => {
+                    document.getElementById(`cost${size}`).textContent = '$0.00';
+                    document.getElementById(`profit${size}`).textContent = '$0.00';
+                    document.getElementById(`margin${size}`).textContent = '0%';
+                });
+                document.getElementById('totalUnitsSold').textContent = '0';
+                document.getElementById('totalRevenue').textContent = '$0.00';
+                document.getElementById('totalCost').textContent = '$0.00';
+                document.getElementById('grossProfit').textContent = '$0.00';
+                document.getElementById('grossMargin').textContent = '0%';
+                return;
+            }
+
+            const recipe = recipes.find(r => r.id === recipeId);
+            const recipeCost = getRecipeCost(recipeId);
+            const batchSizeOz = (Number(recipe.batchSize) || 0) * 31 * 128; // Convert BBLs to oz
+
+            let totalUnits = 0;
+            let totalRevenue = 0;
+            let totalCost = 0;
+
+            const sizes = [
+                { id: '16oz', oz: 16, name: '16oz' },
+                { id: '10oz', oz: 10, name: '10oz' },
+                { id: 'Pitcher', oz: 64, name: 'Pitcher' },
+                { id: 'Growler', oz: 64, name: 'Growler' }
+            ];
+
+            sizes.forEach(size => {
+                const unitsInput = document.getElementById(`units${size.id}`);
+                const priceInput = document.getElementById(`price${size.id}`);
+                const units = parseInt(unitsInput.value) || 0;
+                const price = parseFloat(priceInput.value) || 0;
+
+                const costPerUnit = batchSizeOz > 0 ? (recipeCost * size.oz) / batchSizeOz : 0;
+                const revenue = units * price;
+                const cost = units * costPerUnit;
+                const profit = revenue - cost;
+                const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+
+                document.getElementById(`cost${size.id}`).textContent = `$${costPerUnit.toFixed(2)}`;
+                document.getElementById(`profit${size.id}`).textContent = `$${profit.toFixed(2)}`;
+                document.getElementById(`margin${size.id}`).textContent = `${margin.toFixed(1)}%`;
+
+                totalUnits += units;
+                totalRevenue += revenue;
+                totalCost += cost;
+            });
+
+            const grossProfit = totalRevenue - totalCost;
+            const grossMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
+
+            document.getElementById('totalUnitsSold').textContent = totalUnits;
+            document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
+            document.getElementById('totalCost').textContent = `$${totalCost.toFixed(2)}`;
+            document.getElementById('grossProfit').textContent = `$${grossProfit.toFixed(2)}`;
+            document.getElementById('grossMargin').textContent = `${grossMargin.toFixed(1)}%`;
+        }
+
+        function saveSalesEntry() {
+            const startDate = document.getElementById('salesStartDate').value;
+            const endDate = document.getElementById('salesEndDate').value;
+            const recipeId = parseInt(document.getElementById('salesRecipe').value);
+
+            if (!startDate || !endDate) {
+                alert('Please select start and end dates.');
+                return;
+            }
+            if (!recipeId) {
+                alert('Please select a recipe.');
+                return;
+            }
+
+            const recipe = recipes.find(r => r.id === recipeId);
+            const recipeCost = getRecipeCost(recipeId);
+            const batchSizeOz = (Number(recipe.batchSize) || 0) * 31 * 128;
+
+            const sizes = [
+                { id: '16oz', oz: 16, name: '16oz' },
+                { id: '10oz', oz: 10, name: '10oz' },
+                { id: 'Pitcher', oz: 64, name: 'Pitcher' },
+                { id: 'Growler', oz: 64, name: 'Growler' }
+            ];
+
+            let hasData = false;
+            let tempSalesEntries = []; // To store entries for this save operation
+
+            sizes.forEach(size => {
+                const unitsInput = document.getElementById(`units${size.id}`);
+                const priceInput = document.getElementById(`price${size.id}`);
+                const units = parseInt(unitsInput.value) || 0;
+                const price = parseFloat(priceInput.value) || 0;
+
+                if (units > 0) {
+                    hasData = true;
+                    const costPerUnit = batchSizeOz > 0 ? (recipeCost * size.oz) / batchSizeOz : 0;
+                    const revenue = units * price;
+                    const cost = units * costPerUnit;
+                    const profit = revenue - cost;
+                    const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+
+                    const entryId = editingSalesId || Date.now() + Math.random(); // Use existing ID or generate new
+                    const entry = {
+                        id: entryId,
+                        startDate,
+                        endDate,
+                        recipeId,
+                        size: size.name,
+                        sizeOz: size.oz,
+                        units,
+                        pricePerUnit: price,
+                        costPerUnit,
+                        revenue,
+                        cost,
+                        profit,
+                        margin
+                    };
+                    tempSalesEntries.push(entry);
+                }
+            });
+
+            if (!hasData) {
+                alert('Please enter at least one unit sold.');
+                return;
+            }
+
+            // If editing, remove the old entry before adding new ones
+            if (editingSalesId) {
+                salesEntries = salesEntries.filter(e => e.id !== editingSalesId);
+            }
+
+            // Add the new entries
+            salesEntries.push(...tempSalesEntries);
+
+            saveToStorage();
+            renderSalesReport();
+            clearSalesForm();
+            alert('Sales entry saved!');
+        }
+
+        function clearSalesForm() {
+            editingSalesId = null; // Reset editing state
+            document.getElementById('salesStartDate').value = '';
+            document.getElementById('salesEndDate').value = '';
+            document.getElementById('salesRecipe').value = '';
+            ['16oz', '10oz', 'Pitcher', 'Growler'].forEach(size => {
+                document.getElementById(`units${size}`).value = '0';
+                document.getElementById(`price${size}`).value = '0';
+            });
+            updateSalesKPIs();
+        }
+
+        function deleteSalesEntry(id) {
+            if (!confirm('Delete this sales entry?')) return;
+            salesEntries = salesEntries.filter(e => e.id !== id);
+            saveToStorage();
+            renderSalesReport();
+        }
+
+        function renderSalesReport() {
+            const startDateInput = document.getElementById('reportStartDate');
+            const endDateInput = document.getElementById('reportEndDate');
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+
+            let filtered = salesEntries;
+            if (startDate && endDate) {
+                filtered = salesEntries.filter(e => {
+                    // Ensure date comparison is correct
+                    return e.startDate >= startDate && e.endDate <= endDate;
+                });
+            } else if (startDate) {
+                 filtered = salesEntries.filter(e => e.startDate >= startDate);
+            } else if (endDate) {
+                 filtered = salesEntries.filter(e => e.endDate <= endDate);
+            }
+
+
+            const tbody = document.getElementById('salesReportBody');
+            tbody.innerHTML = '';
+
+            let totalEntries = filtered.length;
+            let totalUnits = 0;
+            let totalRevenue = 0;
+            let totalProfit = 0;
+
+            // Sort by start date ascending for the report
+            const sorted = [...filtered].sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''));
+
+            sorted.forEach(entry => {
+                const recipe = recipes.find(r => r.id === entry.recipeId);
+                const recipeName = recipe ? recipe.name : '(deleted recipe)';
+                
+                totalUnits += entry.units;
+                totalRevenue += entry.revenue;
+                totalProfit += entry.profit;
+
+                const tr = tbody.insertRow();
+                tr.innerHTML = `
+                    <td>${entry.startDate} to ${entry.endDate}</td>
+                    <td>${recipeName}</td>
+                    <td>${entry.size}</td>
+                    <td>${entry.units}</td>
+                    <td>$${entry.pricePerUnit.toFixed(2)}</td>
+                    <td>$${entry.revenue.toFixed(2)}</td>
+                    <td>$${entry.profit.toFixed(2)}</td>
+                    <td>${entry.margin.toFixed(1)}%</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editSalesEntry(${entry.id})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteSalesEntry(${entry.id})">Delete</button>
+                    </td>
+                `;
+            });
+
+            const avgMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
+
+            document.getElementById('reportEntries').textContent = totalEntries;
+            document.getElementById('reportUnits').textContent = totalUnits;
+            document.getElementById('reportRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
+            document.getElementById('reportProfit').textContent = `$${totalProfit.toFixed(2)}`;
+            document.getElementById('reportMargin').textContent = `${avgMargin.toFixed(1)}%`;
+        }
+
+        // Added edit function for sales entries
+        function editSalesEntry(id) {
+            const entry = salesEntries.find(e => e.id === id);
+            if (!entry) return;
+
+            editingSalesId = entry.id; // Set the ID for editing
+            document.getElementById('salesStartDate').value = entry.startDate;
+            document.getElementById('salesEndDate').value = entry.endDate;
+            document.getElementById('salesRecipe').value = entry.recipeId;
+            
+            // Populate the size-specific fields
+            const sizes = [
+                { id: '16oz', oz: 16, name: '16oz' },
+                { id: '10oz', oz: 10, name: '10oz' },
+                { id: 'Pitcher', oz: 64, name: 'Pitcher' },
+                { id: 'Growler', oz: 64, name: 'Growler' }
+            ];
+
+            sizes.forEach(size => {
+                if (entry.size === size.name) {
+                    document.getElementById(`units${size.id}`).value = entry.units;
+                    document.getElementById(`price${size.id}`).value = entry.pricePerUnit.toFixed(2);
+                } else {
+                    // Clear other size inputs if this entry was only for one size
+                    document.getElementById(`units${size.id}`).value = '0';
+                    document.getElementById(`price${size.id}`).value = '0';
+                }
+            });
+
+            updateSalesKPIs(); // Recalculate KPIs based on loaded data
+            showTab('analysis', document.querySelector('.tabs .tab:nth-child(4)')); // Switch to the analysis tab
+        }
+
 
         // ======= INIT =======
         (function initDefaults(){
-            const el = document.getElementById('batchDate');
-            if (el && !el.value) {
+            const batchDateEl = document.getElementById('batchDate');
+            if (batchDateEl && !batchDateEl.value) {
                 const d = new Date();
-                el.value = d.toISOString().slice(0,10);
+                batchDateEl.value = d.toISOString().slice(0,10);
+            }
+            const salesStart = document.getElementById('salesStartDate');
+            const salesEnd = document.getElementById('salesEndDate');
+            if (salesStart && !salesStart.value) {
+                const d = new Date();
+                salesStart.value = d.toISOString().slice(0,10);
+            }
+            if (salesEnd && !salesEnd.value) {
+                const d = new Date();
+                salesEnd.value = d.toISOString().slice(0,10);
             }
         })();
 
