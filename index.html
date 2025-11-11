@@ -3,74 +3,473 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍺 Highway 71 Brewery COGS Tracker</title>
+    <title>Highway 71 Brewery COGS Tracker</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh; padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #e1e6ec;
+            min-height: 100vh; 
+            padding: 0;
         }
-        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 30px; text-align: center; }
-        .header h1 { font-size: 2em; margin-bottom: 10px; }
-        .tabs { display: flex; background: #34495e; overflow-x: auto; }
-        .tab { padding: 15px 25px; color: white; cursor: pointer; border: none; background: transparent; font-size: 14px; font-weight: 500; white-space: nowrap; transition: background 0.3s; }
-        .tab:hover { background: rgba(255,255,255,0.1); }
-        .tab.active { background: white; color: #34495e; }
-        .tab-content { display: none; padding: 30px; }
+        .container { 
+            max-width: 1600px; 
+            margin: 0 auto; 
+            background: white; 
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(0,0,0,0.08); 
+        }
+        /* Professional brick red header with logo */
+        .header { 
+            background: linear-gradient(135deg, #9B3528 0%, #B24236 100%); 
+            color: white; 
+            padding: 24px 40px; 
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .header-logo {
+            height: 60px;
+            width: auto;
+        }
+        .header-content {
+            flex: 1;
+        }
+        .header h1 { 
+            font-size: 1.75em; 
+            margin-bottom: 4px; 
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+        /* </CHANGE> */
+        
+        /* Professional neutral tabs */
+        .tabs { 
+            display: flex; 
+            background: linear-gradient(to bottom, #dce4ec, #d1dce7); 
+            border-bottom: 2px solid #b8c5d6;
+            overflow-x: auto; 
+            padding: 0 40px;
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.05);
+        }
+        .tab { 
+            padding: 16px 24px; 
+            color: #495057; 
+            cursor: pointer; 
+            border: none; 
+            background: transparent; 
+            font-size: 14px; 
+            font-weight: 600; 
+            white-space: nowrap; 
+            transition: all 0.2s; 
+            border-bottom: 3px solid transparent;
+            position: relative;
+            top: 2px;
+        }
+        .tab:hover { 
+            color: #9B3528;
+            background: rgba(155, 53, 40, 0.05);
+        }
+        .tab.active { 
+            color: #9B3528; 
+            background: white;
+            border-bottom-color: #9B3528;
+        }
+        /* </CHANGE> */
+        
+        .tab-content { display: none; padding: 40px; background: white; }
         .tab-content.active { display: block; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        th { background: #2c3e50; color: white; padding: 12px; text-align: left; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
-        td { padding: 12px; border-bottom: 1px solid #ecf0f1; vertical-align: top; }
-        tr:hover { background: #f8f9fa; }
-        input, select, textarea { width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 4px; font-size: 14px; transition: border 0.3s; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: #3498db; }
-        input[type="number"] { text-align: right; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; margin: 5px; }
-        .btn-primary { background: #3498db; color: white; }
-        .btn-primary:hover { background: #2980b9; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3); }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-success:hover { background: #229954; }
-        .btn-danger { background: #e74c3c; color: white; }
-        .btn-danger:hover { background: #c0392b; }
-        .btn-neutral { background: #7f8c8d; color: white; }
-        .recipe-header { background: #ecf0f1; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .grid { display: grid; gap: 15px; }
-        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+        
+        /* Professional table styling */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 24px 0; 
+            background: white; 
+            border: 1px solid #c8d4e3;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        th { 
+            background: linear-gradient(135deg, #6b7f96 0%, #7a8fa6 100%); 
+            color: white; 
+            padding: 14px 16px; 
+            text-align: left; 
+            font-weight: 600; 
+            font-size: 13px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        /* </CHANGE> */
+        
+        td { 
+            padding: 14px 16px; 
+            border-bottom: 1px solid #e3e9f0; 
+            vertical-align: middle; 
+            font-size: 14px;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        /* Updated table row hover with grey-blue tint */
+        tr:hover { background: #f4f7fb; }
+        /* </CHANGE> */
+        
+        /* Professional input styling */
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 1px solid #c8d4e3; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            transition: all 0.2s;
+            background: white;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: #7a8fa6; 
+            box-shadow: 0 0 0 3px rgba(122, 143, 166, 0.15);
+        }
+        /* </CHANGE> */
+        
+        /* All money-related values now in green */
+        input[type="number"] { text-align: right; color: #28a745; font-weight: 600; }
+        /* </CHANGE> */
+        
+        /* Professional button styling with neutral tones */
+        .btn { 
+            padding: 10px 18px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: 600; 
+            transition: all 0.2s; 
+            margin: 5px 5px 5px 0;
+            font-family: inherit;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-primary { 
+            background: #9B3528; 
+            color: white; 
+        }
+        .btn-primary:hover { 
+            background: #8a2f23;
+        }
+        .btn-success { 
+            background: #28a745; 
+            color: white; 
+        }
+        .btn-success:hover { 
+            background: #218838; 
+        }
+        .btn-danger { 
+            background: #6c757d; 
+            color: white; 
+        }
+        .btn-danger:hover { 
+            background: #5a6268; 
+        }
+        .btn-neutral { 
+            background: #e9ecef; 
+            color: #495057; 
+        }
+        .btn-neutral:hover {
+            background: #dee2e6;
+        }
+        /* </CHANGE> */
+        
+        /* CSV modal styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { 
+            background: white; 
+            margin: 5% auto; 
+            padding: 32px; 
+            border-radius: 12px; 
+            width: 90%; 
+            max-width: 900px; 
+            max-height: 80vh; 
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        /* Updated modal header with grey-blue border */
+        .modal-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 24px; 
+            padding-bottom: 16px; 
+            border-bottom: 2px solid #c8d4e3; 
+        }
+        /* </CHANGE> */
+        
+        .modal-header h2 { 
+            color: #212529; 
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        .close { 
+            color: #6c757d; 
+            font-size: 32px; 
+            font-weight: 300; 
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .close:hover { color: #212529; }
+        /* Updated CSV preview with grey-blue styling */
+        .csv-preview { 
+            background: linear-gradient(to bottom, #f4f7fb, #eaf0f7); 
+            padding: 16px; 
+            border-radius: 8px; 
+            margin: 16px 0; 
+            overflow-x: auto;
+            border: 1px solid #c8d4e3;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        /* </CHANGE> */
+        
+        .csv-preview table { margin: 0; font-size: 12px; border: none; }
+        .csv-preview th, .csv-preview td { padding: 8px; }
+        .mapping-section { margin: 24px 0; }
+        /* Updated mapping rows with grey-blue background */
+        .mapping-row { 
+            display: grid; 
+            grid-template-columns: 1fr auto 1fr; 
+            gap: 16px; 
+            align-items: center; 
+            margin-bottom: 16px; 
+            padding: 16px; 
+            background: linear-gradient(to right, #f4f7fb, #eaf0f7); 
+            border-radius: 8px;
+            border: 1px solid #d1dce7;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        /* </CHANGE> */
+        
+        .mapping-arrow { 
+            font-size: 20px; 
+            color: #9B3528;
+            font-weight: bold;
+        }
+        
+        /* Updated info boxes */
+        .info-box { 
+            background: linear-gradient(to right, #e8f4ff, #d9edff); 
+            border-left: 4px solid #0066cc; 
+            padding: 16px; 
+            margin: 16px 0; 
+            border-radius: 6px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .info-box strong { color: #0052a3; }
+        .update-summary { 
+            background: linear-gradient(to right, #fff8e6, #ffedcc); 
+            border-left: 4px solid: #f39c12; 
+            padding: 16px; 
+            margin: 16px 0; 
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.6;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        /* </CHANGE> */
+        
+        /* Updated recipe header with grey-blue gradient and depth */
+        .recipe-header { 
+            background: linear-gradient(135deg, #eaf0f7 0%, #dce8f3 100%); 
+            padding: 24px; 
+            border-radius: 8px; 
+            margin-bottom: 24px;
+            border: 1px solid #c8d4e3;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        /* </CHANGE> */
+        
+        .recipe-header h3 {
+            color: #212529;
+            font-size: 1.1em;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .grid { display: grid; gap: 16px; }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+        
         .info-group { display: flex; flex-direction: column; }
-        .info-group label { font-weight: 600; color: #2c3e50; margin-bottom: 5px; font-size: 13px; }
-        .summary-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px; }
+        .info-group label { 
+            font-weight: 600; 
+            color: #495057; 
+            margin-bottom: 6px; 
+            font-size: 13px; 
+        }
+        
+        /* Updated summary box with grey-blue gradient */
+        .summary-box { 
+            background: linear-gradient(135deg, #6b7f96 0%, #7a8fa6 100%); 
+            color: white; 
+            padding: 24px; 
+            border-radius: 8px; 
+            margin: 24px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        /* </CHANGE> */
+        
+        .summary-box h3 {
+            margin-bottom: 16px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .summary-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+            gap: 16px; 
+            margin-top: 16px; 
+        }
         .summary-item { text-align: center; }
-        .summary-label { font-size: 12px; opacity: 0.9; margin-bottom: 5px; }
-        .summary-value { font-size: 24px; font-weight: bold; }
-        .margin-good { color: #2ecc71; font-weight: bold; }
-        .margin-ok { color: #f39c12; font-weight: bold; }
-        .margin-poor { color: #e74c3c; font-weight: bold; }
-        .actions { margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; }
-        .readonly { background: #f8f9fa; color: #666; }
-        h2 { color: #2c3e50; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #3498db; }
-        .save-reminder { background: #fff3cd; border-left: 4px solid #f39c12; padding: 15px; margin: 20px 0; border-radius: 6px; }
+        .summary-label { 
+            font-size: 12px; 
+            opacity: 0.9; 
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Money values now in green */
+        .summary-value { 
+            font-size: 26px; 
+            font-weight: bold; 
+            color: #7bed9f;
+        }
+        /* </CHANGE> */
+        
+        .margin-good { color: #7bed9f; font-weight: bold; }
+        .margin-ok { color: #ffd93d; font-weight: bold; }
+        .margin-poor { color: #ff6b9d; font-weight: bold; }
+        
+        .actions { margin: 24px 0; display: flex; gap: 8px; flex-wrap: wrap; }
+        
+        /* Updated readonly fields with grey-blue background and green text for money */
+        .readonly { 
+            background: linear-gradient(to bottom, #f4f7fb, #eaf0f7); 
+            color: #28a745; 
+            cursor: not-allowed; 
+            font-weight: 600;
+            border: 1px solid #d1dce7;
+        }
+        /* </CHANGE> */
+        
+        /* Professional section headings */
+        h2 { 
+            color: #212529; 
+            margin-bottom: 24px; 
+            padding-bottom: 12px; 
+            border-bottom: 3px solid #9B3528;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        h3 {
+            color: #212529;
+            font-size: 1.2em;
+            margin: 20px 0 16px 0;
+            font-weight: 600;
+        }
+        h4 {
+            color: #495057;
+            font-size: 1em;
+            margin: 16px 0 12px 0;
+            font-weight: 600;
+        }
+        /* </CHANGE> */
+        
+        /* Updated save reminder with grey-blue tones */
+        .save-reminder { 
+            background: linear-gradient(to right, #fff8e6, #ffedcc); 
+            border-left: 4px solid #f39c12; 
+            padding: 16px; 
+            margin: 20px 0; 
+            border-radius: 6px;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        /* </CHANGE> */
+        
         .save-reminder strong { color: #f39c12; }
-        .muted { color: #6c757d; font-size: 13px; }
-        .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-        .kpi div { background: #f6f9fc; border: 1px solid #e1e7ef; padding: 12px; border-radius: 8px; }
+        
+        .muted { 
+            color: #6c757d; 
+            font-size: 13px; 
+        }
+        
+        /* Professional KPI cards */
+        .kpi { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .kpi div { 
+            background: linear-gradient(135deg, #eaf0f7 0%, #dce8f3 100%); 
+            border: 1px solid #c8d4e3; 
+            padding: 16px; 
+            border-radius: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .kpi div:hover {
+            border-color: #9B3528;
+            box-shadow: 0 4px 12px rgba(155, 53, 40, 0.15);
+            transform: translateY(-2px);
+        }
+        .kpi .muted {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .kpi .summary-value {
+            font-size: 22px;
+            color: #28a745;
+        }
+        /* </CHANGE> */
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Added logo to header -->
         <div class="header">
-            <h1>🍺 Brewery COGS Tracker</h1>
-            <p>Comprehensive Cost of Goods Sold Management System</p>
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/hwy71logo-mrB0r5K2pUyejDfZ5spqR5QUndqNAN.avif" alt="Highway 71 Brewery" class="header-logo">
+            <div class="header-content">
+                <h1>Brewery COGS Tracker</h1>
+                <p>Comprehensive Cost of Goods Sold Management System</p>
+            </div>
         </div>
+        <!-- </CHANGE> -->
+        
         <div class="tabs">
             <button class="tab active" onclick="showTab('ingredients', this)">Ingredient Database</button>
             <button class="tab" onclick="showTab('recipes', this)">Recipes</button>
             <button class="tab" onclick="showTab('batches', this)">Batch Records</button>
-            <!-- Updated tab name from Cost Analysis to Margin Analysis -->
             <button class="tab" onclick="showTab('analysis', this)">Margin Analysis</button>
         </div>
 
@@ -82,6 +481,10 @@
             </div>
             <div class="actions">
                 <button class="btn btn-primary" onclick="addIngredient()">+ Add Ingredient</button>
+                <!-- Added CSV upload button for price sheets -->
+                <button class="btn btn-primary" onclick="document.getElementById('csvUploadFile').click()">📋 Upload Price Sheet (CSV)</button>
+                <input type="file" id="csvUploadFile" accept=".csv" style="display: none;" onchange="handleCSVUpload(event)">
+                <!-- </CHANGE> -->
                 <button class="btn btn-success" onclick="exportData()">📥 Export Data</button>
                 <button class="btn btn-success" onclick="document.getElementById('importFile').click()">📤 Import Data</button>
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
@@ -196,17 +599,16 @@
                 </div>
                 <div class="kpi">
                     <div>
-                        <div class="muted">Recipe Batch Size</div>
+                        <span class="muted">Recipe Batch Size</span>
                         <div id="kpiRecipeBatchSize" class="summary-value">0.00 bbl</div>
                     </div>
                     <div>
-                        <div class="muted">Yield % (Racked / Recipe Size)</div>
-                        <div id="kpiYield" class="summary-value" style="color:#2ecc71">0%</div>
+                        <span class="muted">Yield % (Racked / Recipe Size)</span>
+                        <div id="kpiYield" class="summary-value" style="color:#28a745">0%</div>
                     </div>
-                    <!-- Added cost per BBL yielded KPI -->
                     <div>
-                        <div class="muted">Cost per BBL Yielded</div>
-                        <div id="kpiCostPerBBL" class="summary-value" style="color:#e67e22">$0.00</div>
+                        <span class="muted">Cost per BBL Yielded</span>
+                        <div id="kpiCostPerBBL" class="summary-value" style="color:#9B3528">$0.00</div>
                     </div>
                 </div>
             </div>
@@ -220,7 +622,6 @@
                         <th>Recipe Size (bbl)</th>
                         <th>Volume Racked (bbl)</th>
                         <th>Yield %</th>
-                        <!-- Added cost per BBL yielded column -->
                         <th>Cost/BBL Yielded</th>
                         <th>Actions</th>
                     </tr>
@@ -236,21 +637,20 @@
             </div>
             <div class="kpi">
                 <div>
-                    <div class="muted">Total Volume Racked (bbl)</div>
-                    <div id="mPackaged" class="summary-value" style="color:#3498db">0.00</div>
+                    <span class="muted">Total Volume Racked (bbl)</span>
+                    <div id="mPackaged" class="summary-value" style="color:#9B3528">0.00</div>
                 </div>
                 <div>
-                    <div class="muted">Number of Batches</div>
+                    <span class="muted">Number of Batches</span>
                     <div id="mBatchCount" class="summary-value">0</div>
                 </div>
                 <div>
-                    <div class="muted">Average Yield %</div>
+                    <span class="muted">Average Yield %</span>
                     <div id="mAvgYield" class="summary-value">0%</div>
                 </div>
-                <!-- Added average cost per BBL yielded in monthly report -->
                 <div>
-                    <div class="muted">Avg Cost per BBL Yielded</div>
-                    <div id="mAvgCostPerBBL" class="summary-value" style="color:#e67e22">$0.00</div>
+                    <span class="muted">Avg Cost per BBL Yielded</span>
+                    <div id="mAvgCostPerBBL" class="summary-value" style="color:#9B3528">$0.00</div>
                 </div>
             </div>
             <table>
@@ -261,7 +661,6 @@
                         <th>Recipe Size (bbl)</th>
                         <th>Volume Racked (bbl)</th>
                         <th>Yield %</th>
-                        <!-- Added cost per BBL yielded in monthly table -->
                         <th>Cost/BBL Yielded</th>
                     </tr>
                 </thead>
@@ -270,7 +669,6 @@
         </div>
 
         <!-- ANALYSIS TAB -->
-        <!-- Renamed to Margin Analysis and completely redesigned for sales tracking -->
         <div id="analysis" class="tab-content">
             <h2>Margin Analysis - Sales Tracking</h2>
             <p class="muted">Track sales by beer and unit size for a specific time period to calculate gross profit and margin.</p>
@@ -432,6 +830,40 @@
         </div>
     </div>
 
+    <!-- Added CSV upload modal for price sheet mapping -->
+    <div id="csvModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Price Sheet</h2>
+                <span class="close" onclick="closeCSVModal()">&times;</span>
+            </div>
+            
+            <div class="info-box">
+                <strong>📋 How it works:</strong> Upload a CSV file with your supplier's price sheet. 
+                We'll match the columns to your ingredient data and update pricing automatically.
+            </div>
+            
+            <div id="csvPreviewSection" style="display: none;">
+                <h3>CSV Preview (first 5 rows)</h3>
+                <div class="csv-preview">
+                    <table id="csvPreviewTable"></table>
+                </div>
+                
+                <h3>Column Mapping</h3>
+                <p class="muted">Map the CSV columns to your ingredient fields:</p>
+                <div class="mapping-section" id="columnMapping"></div>
+                
+                <div class="update-summary" id="updateSummary" style="display: none;"></div>
+                
+                <div class="actions">
+                    <button class="btn btn-success" onclick="applyCSVImport()">✓ Apply Updates</button>
+                    <button class="btn btn-neutral" onclick="closeCSVModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- </CHANGE> -->
+
     <script>
         // ======= APP STATE =======
         let ingredients = [];
@@ -441,6 +873,15 @@
         let currentRecipeId = null;
         let editingBatchId = null;
         let editingSalesId = null;
+        let csvData = null;
+        let csvMapping = {
+            name: null,
+            category: null,
+            unit: null,
+            cost: null,
+            supplier: null
+        };
+        // </CHANGE>
 
         // ======= STORAGE =======
         function loadFromStorage() {
@@ -554,7 +995,6 @@
                     {name: '12oz Can', volume: 12, price: 3.50}, {name: '16oz Can', volume: 16, price: 4.50}
                 ]
             }];
-            // Add sample sales data
             salesEntries = [
                 {
                     id: 1678886400000, startDate: '2023-03-15', endDate: '2023-03-15', recipeId: 1, size: '16oz', sizeOz: 16,
@@ -623,9 +1063,8 @@
                     renderRecipeIngredients();
                     calculateRecipeCost();
                 }
-                // Update sales KPIs if ingredient cost changes
                 updateSalesKPIs();
-                renderSalesReport(); // Re-render to reflect potential changes in cost per unit
+                renderSalesReport();
             }
         }
 
@@ -636,10 +1075,297 @@
             renderIngredients();
             if (currentRecipeId) { renderRecipeIngredients(); calculateRecipeCost(); }
             saveToStorage();
-            // Update sales KPIs after ingredient deletion
             updateSalesKPIs();
             renderSalesReport();
         }
+
+        function handleCSVUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+                    parseCSV(text);
+                } catch (error) {
+                    alert('Error reading CSV file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function parseCSV(text) {
+            const lines = text.split(/\r\n|\n/);
+            if (lines.length < 2) {
+                alert('CSV file must have at least a header row and one data row.');
+                return;
+            }
+            
+            // Parse CSV with proper quote handling
+            const parseCSVLine = (line) => {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current.trim());
+                return result;
+            };
+            
+            const headers = parseCSVLine(lines[0]);
+            const rows = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim()) {
+                    const values = parseCSVLine(lines[i]);
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        row[header] = values[index] || '';
+                    });
+                    rows.push(row);
+                }
+            }
+            
+            csvData = { headers, rows };
+            showCSVPreview();
+        }
+
+        function showCSVPreview() {
+            document.getElementById('csvModal').style.display = 'block';
+            document.getElementById('csvPreviewSection').style.display = 'block';
+            
+            // Show preview table (first 5 rows)
+            const previewTable = document.getElementById('csvPreviewTable');
+            let html = '<thead><tr>';
+            csvData.headers.forEach(header => {
+                html += `<th>${header}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            
+            csvData.rows.slice(0, 5).forEach(row => {
+                html += '<tr>';
+                csvData.headers.forEach(header => {
+                    html += `<td>${row[header]}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody>';
+            previewTable.innerHTML = html;
+            
+            // Create column mapping interface
+            createColumnMapping();
+            
+            // Show update summary
+            showUpdateSummary();
+        }
+
+        function createColumnMapping() {
+            const mappingDiv = document.getElementById('columnMapping');
+            const fields = [
+                { key: 'name', label: 'Ingredient Name', required: true },
+                { key: 'category', label: 'Category', required: false },
+                { key: 'unit', label: 'Unit', required: false },
+                { key: 'cost', label: 'Cost per Unit', required: true },
+                { key: 'supplier', label: 'Supplier', required: false }
+            ];
+            
+            mappingDiv.innerHTML = '';
+            
+            fields.forEach(field => {
+                const row = document.createElement('div');
+                row.className = 'mapping-row';
+                
+                // Auto-detect best match for each field
+                let bestMatch = '';
+                let bestScore = 0;
+                csvData.headers.forEach(header => {
+                    const headerLower = header.toLowerCase();
+                    const fieldLower = field.label.toLowerCase();
+                    
+                    // Simple matching logic
+                    if (headerLower.includes(fieldLower.split(' ')[0]) || 
+                        fieldLower.includes(headerLower)) {
+                        const score = headerLower.length;
+                        if (score > bestScore || !bestMatch) {
+                            bestMatch = header;
+                            bestScore = score;
+                        }
+                    }
+                    
+                    // Specific matches
+                    if (field.key === 'name' && (headerLower.includes('name') || headerLower.includes('ingredient') || headerLower.includes('item'))) {
+                        bestMatch = header;
+                    }
+                    if (field.key === 'cost' && (headerLower.includes('cost') || headerLower.includes('price') || headerLower.includes('$'))) {
+                        bestMatch = header;
+                    }
+                    if (field.key === 'unit' && headerLower.includes('unit')) {
+                        bestMatch = header;
+                    }
+                    if (field.key === 'supplier' && headerLower.includes('supplier')) {
+                        bestMatch = header;
+                    }
+                    if (field.key === 'category' && headerLower.includes('category')) {
+                        bestMatch = header;
+                    }
+                });
+                
+                csvMapping[field.key] = bestMatch;
+                
+                row.innerHTML = `
+                    <div>
+                        <strong>${field.label}</strong> ${field.required ? '<span style="color: red;">*</span>' : ''}
+                    </div>
+                    <div class="mapping-arrow">→</div>
+                    <div>
+                        <select id="mapping_${field.key}" onchange="updateMapping('${field.key}', this.value)">
+                            <option value="">-- Skip this field --</option>
+                            ${csvData.headers.map(h => `<option value="${h}" ${h === bestMatch ? 'selected' : ''}>${h}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+                
+                mappingDiv.appendChild(row);
+            });
+        }
+
+        function updateMapping(field, value) {
+            csvMapping[field] = value || null;
+            showUpdateSummary();
+        }
+
+        function showUpdateSummary() {
+            const summaryDiv = document.getElementById('updateSummary');
+            
+            if (!csvMapping.name || !csvMapping.cost) {
+                summaryDiv.style.display = 'block';
+                summaryDiv.innerHTML = '<strong>⚠️ Required Mapping:</strong> Please map at least "Ingredient Name" and "Cost per Unit" columns to proceed.';
+                return;
+            }
+            
+            // Analyze what will be updated
+            let updateCount = 0;
+            let newCount = 0;
+            
+            csvData.rows.forEach(row => {
+                const name = row[csvMapping.name]?.trim();
+                const costStr = row[csvMapping.cost]?.trim();
+                
+                if (!name || !costStr) return;
+                
+                const existing = ingredients.find(ing => 
+                    ing.name.toLowerCase() === name.toLowerCase()
+                );
+                
+                if (existing) {
+                    updateCount++;
+                } else {
+                    newCount++;
+                }
+            });
+            
+            summaryDiv.style.display = 'block';
+            summaryDiv.innerHTML = `
+                <strong>📊 Import Summary:</strong><br>
+                • ${updateCount} existing ingredient(s) will be updated with new pricing<br>
+                • ${newCount} new ingredient(s) will be added to your database<br>
+                • Total rows to process: ${csvData.rows.length}
+            `;
+        }
+
+        function applyCSVImport() {
+            if (!csvMapping.name || !csvMapping.cost) {
+                alert('Please map at least Ingredient Name and Cost per Unit columns.');
+                return;
+            }
+            
+            let updateCount = 0;
+            let newCount = 0;
+            let errorCount = 0;
+            
+            csvData.rows.forEach(row => {
+                try {
+                    const name = row[csvMapping.name]?.trim();
+                    const costStr = row[csvMapping.cost]?.trim().replace(/[$,]/g, '');
+                    const cost = parseFloat(costStr);
+                    
+                    if (!name || isNaN(cost)) {
+                        errorCount++;
+                        return;
+                    }
+                    
+                    // Try to find existing ingredient
+                    let ingredient = ingredients.find(ing => 
+                        ing.name.toLowerCase() === name.toLowerCase()
+                    );
+                    
+                    if (ingredient) {
+                        // Update existing
+                        ingredient.cost = cost;
+                        if (csvMapping.unit && row[csvMapping.unit]) {
+                            ingredient.unit = row[csvMapping.unit].trim();
+                        }
+                        if (csvMapping.supplier && row[csvMapping.supplier]) {
+                            ingredient.supplier = row[csvMapping.supplier].trim();
+                        }
+                        if (csvMapping.category && row[csvMapping.category]) {
+                            ingredient.category = row[csvMapping.category].trim();
+                        }
+                        updateCount++;
+                    } else {
+                        // Create new ingredient
+                        const newId = ingredients.length > 0 ? Math.max(...ingredients.map(i => i.id)) + 1 : 1;
+                        const newIngredient = {
+                            id: newId,
+                            name: name,
+                            category: (csvMapping.category && row[csvMapping.category]) ? row[csvMapping.category].trim() : 'Other',
+                            unit: (csvMapping.unit && row[csvMapping.unit]) ? row[csvMapping.unit].trim() : 'lb',
+                            cost: cost,
+                            supplier: (csvMapping.supplier && row[csvMapping.supplier]) ? row[csvMapping.supplier].trim() : ''
+                        };
+                        ingredients.push(newIngredient);
+                        newCount++;
+                    }
+                } catch (error) {
+                    errorCount++;
+                }
+            });
+            
+            saveToStorage();
+            renderIngredients();
+            
+            // Update all calculations
+            if (currentRecipeId) {
+                renderRecipeIngredients();
+                calculateRecipeCost();
+            }
+            updateSalesKPIs();
+            renderSalesReport();
+            
+            closeCSVModal();
+            
+            alert(`Import complete!\n\n✓ ${updateCount} ingredients updated\n✓ ${newCount} new ingredients added${errorCount > 0 ? `\n⚠️ ${errorCount} rows skipped (invalid data)` : ''}`);
+        }
+
+        function closeCSVModal() {
+            document.getElementById('csvModal').style.display = 'none';
+            document.getElementById('csvPreviewSection').style.display = 'none';
+            csvData = null;
+            csvMapping = { name: null, category: null, unit: null, cost: null, supplier: null };
+        }
+        // </CHANGE>
 
         // ======= RECIPES =======
         function addRecipe() {
@@ -777,11 +1503,9 @@
                 currentRecipeId = null;
                 renderBatches();
                 renderMonthlyCOGS();
-                renderSalesReport(); // Re-render sales report as recipe might be used
+                renderSalesReport();
             }
         }
-
-        // ======= ANALYSIS - Removed old analysis code, replaced with sales tracking =======
 
         // ======= BATCHES =======
         function updateBatchRecipeSelector() {
@@ -843,7 +1567,6 @@
                 el.addEventListener('change', updateBatchKPIs);
             }
         });
-
 
         function saveBatch() {
             const b = getBatchFormData();
@@ -966,7 +1689,6 @@
         }
 
         // ======= SALES / MARGIN ANALYSIS =======
-
         function updateSalesRecipeSelector() {
             const sel = document.getElementById('salesRecipe');
             if (!sel) return;
@@ -984,7 +1706,6 @@
         function updateSalesKPIs() {
             const recipeId = parseInt(document.getElementById('salesRecipe').value);
             if (!recipeId) {
-                // Clear all calculations if no recipe selected
                 ['16oz', '10oz', 'Pitcher', 'Growler'].forEach(size => {
                     document.getElementById(`cost${size}`).textContent = '$0.00';
                     document.getElementById(`profit${size}`).textContent = '$0.00';
@@ -1000,7 +1721,7 @@
 
             const recipe = recipes.find(r => r.id === recipeId);
             const recipeCost = getRecipeCost(recipeId);
-            const batchSizeOz = (Number(recipe.batchSize) || 0) * 31 * 128; // Convert BBLs to oz
+            const batchSizeOz = (Number(recipe.batchSize) || 0) * 31 * 128;
 
             let totalUnits = 0;
             let totalRevenue = 0;
@@ -1070,7 +1791,7 @@
             ];
 
             let hasData = false;
-            let tempSalesEntries = []; // To store entries for this save operation
+            let tempSalesEntries = [];
 
             sizes.forEach(size => {
                 const unitsInput = document.getElementById(`units${size.id}`);
@@ -1086,7 +1807,7 @@
                     const profit = revenue - cost;
                     const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
 
-                    const entryId = editingSalesId || Date.now() + Math.random(); // Use existing ID or generate new
+                    const entryId = editingSalesId || Date.now() + Math.random();
                     const entry = {
                         id: entryId,
                         startDate,
@@ -1111,12 +1832,10 @@
                 return;
             }
 
-            // If editing, remove the old entry before adding new ones
             if (editingSalesId) {
                 salesEntries = salesEntries.filter(e => e.id !== editingSalesId);
             }
 
-            // Add the new entries
             salesEntries.push(...tempSalesEntries);
 
             saveToStorage();
@@ -1126,7 +1845,7 @@
         }
 
         function clearSalesForm() {
-            editingSalesId = null; // Reset editing state
+            editingSalesId = null;
             document.getElementById('salesStartDate').value = '';
             document.getElementById('salesEndDate').value = '';
             document.getElementById('salesRecipe').value = '';
@@ -1153,7 +1872,6 @@
             let filtered = salesEntries;
             if (startDate && endDate) {
                 filtered = salesEntries.filter(e => {
-                    // Ensure date comparison is correct
                     return e.startDate >= startDate && e.endDate <= endDate;
                 });
             } else if (startDate) {
@@ -1161,7 +1879,6 @@
             } else if (endDate) {
                  filtered = salesEntries.filter(e => e.endDate <= endDate);
             }
-
 
             const tbody = document.getElementById('salesReportBody');
             tbody.innerHTML = '';
@@ -1171,7 +1888,6 @@
             let totalRevenue = 0;
             let totalProfit = 0;
 
-            // Sort by start date ascending for the report
             const sorted = [...filtered].sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''));
 
             sorted.forEach(entry => {
@@ -1208,17 +1924,15 @@
             document.getElementById('reportMargin').textContent = `${avgMargin.toFixed(1)}%`;
         }
 
-        // Added edit function for sales entries
         function editSalesEntry(id) {
             const entry = salesEntries.find(e => e.id === id);
             if (!entry) return;
 
-            editingSalesId = entry.id; // Set the ID for editing
+            editingSalesId = entry.id;
             document.getElementById('salesStartDate').value = entry.startDate;
             document.getElementById('salesEndDate').value = entry.endDate;
             document.getElementById('salesRecipe').value = entry.recipeId;
             
-            // Populate the size-specific fields
             const sizes = [
                 { id: '16oz', oz: 16, name: '16oz' },
                 { id: '10oz', oz: 10, name: '10oz' },
@@ -1231,16 +1945,14 @@
                     document.getElementById(`units${size.id}`).value = entry.units;
                     document.getElementById(`price${size.id}`).value = entry.pricePerUnit.toFixed(2);
                 } else {
-                    // Clear other size inputs if this entry was only for one size
                     document.getElementById(`units${size.id}`).value = '0';
                     document.getElementById(`price${size.id}`).value = '0';
                 }
             });
 
-            updateSalesKPIs(); // Recalculate KPIs based on loaded data
-            showTab('analysis', document.querySelector('.tabs .tab:nth-child(4)')); // Switch to the analysis tab
+            updateSalesKPIs();
+            showTab('analysis', document.querySelector('.tabs .tab:nth-child(4)'));
         }
-
 
         // ======= INIT =======
         (function initDefaults(){
