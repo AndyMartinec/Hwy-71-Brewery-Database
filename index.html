@@ -143,6 +143,7 @@
         
         /* All money-related values now in green */
         input[type="number"] { text-align: right; color: #28a745; font-weight: 600; }
+        input[type="number"].non-currency { color: #495057; font-weight: 500; }
         /* </CHANGE> */
         
         /* Professional button styling with neutral tones */
@@ -527,7 +528,7 @@
                         </div>
                         <div class="info-group">
                             <label>Batch Size (bbls)</label>
-                            <input type="number" id="batchSize" placeholder="e.g., 0.5" step="0.1">
+                            <input type="number" id="batchSize" class="non-currency" placeholder="e.g., 0.5" step="0.1">
                         </div>
                     </div>
                 </div>
@@ -590,7 +591,7 @@
                     </div>
                     <div class="info-group">
                         <label>Volume Racked (bbls)</label>
-                        <input type="number" id="volumeRacked" step="0.01" placeholder="e.g., 6.3" oninput="updateBatchKPIs()">
+                        <input type="number" id="volumeRacked" class="non-currency" step="0.01" placeholder="e.g., 6.3" oninput="updateBatchKPIs()">
                     </div>
                 </div>
                 <div class="actions">
@@ -608,7 +609,7 @@
                     </div>
                     <div>
                         <span class="muted">Cost per BBL Yielded</span>
-                        <div id="kpiCostPerBBL" class="summary-value" style="color:#9B3528">$0.00</div>
+                        <div id="kpiCostPerBBL" class="summary-value" style="color:#28a745">$0.00</div>
                     </div>
                 </div>
             </div>
@@ -638,7 +639,7 @@
             <div class="kpi">
                 <div>
                     <span class="muted">Total Volume Racked (bbl)</span>
-                    <div id="mPackaged" class="summary-value" style="color:#9B3528">0.00</div>
+                    <div id="mPackaged" class="summary-value" style="color:#28a745">0.00</div>
                 </div>
                 <div>
                     <span class="muted">Number of Batches</span>
@@ -650,7 +651,7 @@
                 </div>
                 <div>
                     <span class="muted">Avg Cost per BBL Yielded</span>
-                    <div id="mAvgCostPerBBL" class="summary-value" style="color:#9B3528">$0.00</div>
+                    <div id="mAvgCostPerBBL" class="summary-value" style="color:#28a745">$0.00</div>
                 </div>
             </div>
             <table>
@@ -709,7 +710,7 @@
                         <tr>
                             <td>16oz</td>
                             <td>16</td>
-                            <td><input type="number" id="units16oz" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
+                            <td><input type="number" id="units16oz" class="non-currency" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
                             <td><input type="number" id="price16oz" value="0" min="0" step="0.01" oninput="updateSalesKPIs()"></td>
                             <td class="readonly" id="cost16oz">$0.00</td>
                             <td class="readonly" id="profit16oz">$0.00</td>
@@ -718,7 +719,7 @@
                         <tr>
                             <td>10oz</td>
                             <td>10</td>
-                            <td><input type="number" id="units10oz" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
+                            <td><input type="number" id="units10oz" class="non-currency" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
                             <td><input type="number" id="price10oz" value="0" min="0" step="0.01" oninput="updateSalesKPIs()"></td>
                             <td class="readonly" id="cost10oz">$0.00</td>
                             <td class="readonly" id="profit10oz">$0.00</td>
@@ -727,7 +728,7 @@
                         <tr>
                             <td>Pitcher</td>
                             <td>64</td>
-                            <td><input type="number" id="unitsPitcher" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
+                            <td><input type="number" id="unitsPitcher" class="non-currency" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
                             <td><input type="number" id="pricePitcher" value="0" min="0" step="0.01" oninput="updateSalesKPIs()"></td>
                             <td class="readonly" id="costPitcher">$0.00</td>
                             <td class="readonly" id="profitPitcher">$0.00</td>
@@ -736,7 +737,7 @@
                         <tr>
                             <td>Growler</td>
                             <td>64</td>
-                            <td><input type="number" id="unitsGrowler" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
+                            <td><input type="number" id="unitsGrowler" class="non-currency" value="0" min="0" step="1" oninput="updateSalesKPIs()"></td>
                             <td><input type="number" id="priceGrowler" value="0" min="0" step="0.01" oninput="updateSalesKPIs()"></td>
                             <td class="readonly" id="costGrowler">$0.00</td>
                             <td class="readonly" id="profitGrowler">$0.00</td>
@@ -1425,13 +1426,37 @@
                 const ingredient = ingredients.find(i => i.id === recIng.ingredientId);
                 if (!ingredient) return;
                 const totalCost = (Number(recIng.quantity) * Number(ingredient.cost));
+                
+                // Group ingredients by supplier for dropdown
+                const groupedIngredients = {};
+                ingredients.forEach(ing => {
+                    const supplier = ing.supplier || 'Unknown';
+                    if (!groupedIngredients[supplier]) {
+                        groupedIngredients[supplier] = [];
+                    }
+                    groupedIngredients[supplier].push(ing);
+                });
+                
+                // Sort suppliers alphabetically
+                const sortedSuppliers = Object.keys(groupedIngredients).sort();
+                
+                // Build grouped dropdown HTML
+                let selectHTML = '<select onchange="updateRecipeIngredient(' + index + ', \'ingredientId\', parseInt(this.value))">';
+                sortedSuppliers.forEach(supplier => {
+                    selectHTML += '<optgroup label="' + supplier + '">';
+                    groupedIngredients[supplier].forEach(ing => {
+                        const selected = ing.id === recIng.ingredientId ? 'selected' : '';
+                        selectHTML += '<option value="' + ing.id + '" ' + selected + '>' + ing.name + ' (' + supplier + ')</option>';
+                    });
+                    selectHTML += '</optgroup>';
+                });
+                selectHTML += '</select>';
+                
                 const row = tbody.insertRow();
                 row.innerHTML = `
-                    <td><select onchange="updateRecipeIngredient(${index}, 'ingredientId', parseInt(this.value))">
-                        ${ingredients.map(ing => `<option value="${ing.id}" ${ing.id === recIng.ingredientId ? 'selected' : ''}>${ing.name}</option>`).join('')}
-                    </select></td>
+                    <td>${selectHTML}</td>
                     <td class="readonly">${ingredient.category}</td>
-                    <td><input type="number" value="${Number(recIng.quantity)}" step="0.1" onchange="updateRecipeIngredient(${index}, 'quantity', parseFloat(this.value) || 0)"></td>
+                    <td><input type="number" class="non-currency" value="${Number(recIng.quantity)}" step="0.1" onchange="updateRecipeIngredient(${index}, 'quantity', parseFloat(this.value) || 0)"></td>
                     <td class="readonly">${ingredient.unit}</td>
                     <td class="readonly">$${Number(ingredient.cost).toFixed(2)}</td>
                     <td class="readonly">$${totalCost.toFixed(2)}</td>
@@ -1440,6 +1465,7 @@
             });
             saveToStorage();
         }
+        // </CHANGE>
 
         function addRecipeIngredient() {
             const recipe = recipes.find(r => r.id === currentRecipeId);
@@ -1559,6 +1585,7 @@
             document.getElementById('kpiYield').textContent = `${totals.yieldPct.toFixed(1)}%`;
             document.getElementById('kpiCostPerBBL').textContent = `$${totals.costPerBBL.toFixed(2)}`;
         }
+        // </CHANGE>
 
         ['batchDate','batchRecipe','volumeRacked'].forEach(id => {
             const el = document.getElementById(id);
@@ -1622,9 +1649,9 @@
                 tr.innerHTML = `
                     <td>${b.date || ''}</td>
                     <td>${name}</td>
-                    <td>${totals.recipeBatchSize.toFixed(2)}</td>
-                    <td>${(b.volumeRacked||0).toFixed(2)}</td>
-                    <td>${totals.yieldPct.toFixed(1)}%</td>
+                    <td style="color: #495057; font-weight: 500;">${totals.recipeBatchSize.toFixed(2)}</td>
+                    <td style="color: #495057; font-weight: 500;">${(b.volumeRacked||0).toFixed(2)}</td>
+                    <td style="color: #495057; font-weight: 500;">${totals.yieldPct.toFixed(1)}%</td>
                     <td>$${totals.costPerBBL.toFixed(2)}</td>
                     <td>
                         <button class="btn btn-primary" onclick="editBatch(${b.id})">Edit</button>
@@ -1673,20 +1700,24 @@
                 tr.innerHTML = `
                     <td>${b.date}</td>
                     <td>${name}</td>
-                    <td>${totals.recipeBatchSize.toFixed(2)}</td>
-                    <td>${(b.volumeRacked||0).toFixed(2)}</td>
-                    <td>${totals.yieldPct.toFixed(1)}%</td>
+                    <td style="color: #495057; font-weight: 500;">${totals.recipeBatchSize.toFixed(2)}</td>
+                    <td style="color: #495057; font-weight: 500;">${(b.volumeRacked||0).toFixed(2)}</td>
+                    <td style="color: #495057; font-weight: 500;">${totals.yieldPct.toFixed(1)}%</td>
                     <td>$${totals.costPerBBL.toFixed(2)}</td>
                 `;
             });
 
             document.getElementById('mPackaged').textContent = (sumVolumeRacked || 0).toFixed(2);
+            document.getElementById('mPackaged').style.color = '#495057';
             document.getElementById('mBatchCount').textContent = batchCount;
+            document.getElementById('mBatchCount').style.color = '#495057';
             const avgYield = batchCount > 0 ? (sumYieldPct / batchCount) : 0;
             document.getElementById('mAvgYield').textContent = `${avgYield.toFixed(1)}%`;
+            document.getElementById('mAvgYield').style.color = '#495057';
             const avgCostPerBBL = batchCount > 0 ? (sumCostPerBBL / batchCount) : 0;
             document.getElementById('mAvgCostPerBBL').textContent = `$${avgCostPerBBL.toFixed(2)}`;
         }
+        // </CHANGE>
 
         // ======= SALES / MARGIN ANALYSIS =======
         function updateSalesRecipeSelector() {
@@ -1748,7 +1779,10 @@
 
                 document.getElementById(`cost${size.id}`).textContent = `$${costPerUnit.toFixed(2)}`;
                 document.getElementById(`profit${size.id}`).textContent = `$${profit.toFixed(2)}`;
-                document.getElementById(`margin${size.id}`).textContent = `${margin.toFixed(1)}%`;
+                const marginEl = document.getElementById(`margin${size.id}`);
+                marginEl.textContent = `${margin.toFixed(1)}%`;
+                marginEl.style.color = '#495057';
+                // </CHANGE>
 
                 totalUnits += units;
                 totalRevenue += revenue;
@@ -1758,11 +1792,19 @@
             const grossProfit = totalRevenue - totalCost;
             const grossMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
 
-            document.getElementById('totalUnitsSold').textContent = totalUnits;
+            const totalUnitsEl = document.getElementById('totalUnitsSold');
+            totalUnitsEl.textContent = totalUnits;
+            totalUnitsEl.style.color = '#495057';
+            // </CHANGE>
+            
             document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
             document.getElementById('totalCost').textContent = `$${totalCost.toFixed(2)}`;
             document.getElementById('grossProfit').textContent = `$${grossProfit.toFixed(2)}`;
-            document.getElementById('grossMargin').textContent = `${grossMargin.toFixed(1)}%`;
+            
+            const grossMarginEl = document.getElementById('grossMargin');
+            grossMarginEl.textContent = `${grossMargin.toFixed(1)}%`;
+            grossMarginEl.style.color = '#495057';
+            // </CHANGE>
         }
 
         function saveSalesEntry() {
@@ -1903,11 +1945,11 @@
                     <td>${entry.startDate} to ${entry.endDate}</td>
                     <td>${recipeName}</td>
                     <td>${entry.size}</td>
-                    <td>${entry.units}</td>
+                    <td style="color: #495057; font-weight: 500;">${entry.units}</td>
                     <td>$${entry.pricePerUnit.toFixed(2)}</td>
                     <td>$${entry.revenue.toFixed(2)}</td>
                     <td>$${entry.profit.toFixed(2)}</td>
-                    <td>${entry.margin.toFixed(1)}%</td>
+                    <td style="color: #495057; font-weight: 500;">${entry.margin.toFixed(1)}%</td>
                     <td>
                         <button class="btn btn-primary" onclick="editSalesEntry(${entry.id})">Edit</button>
                         <button class="btn btn-danger" onclick="deleteSalesEntry(${entry.id})">Delete</button>
@@ -1917,12 +1959,22 @@
 
             const avgMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
-            document.getElementById('reportEntries').textContent = totalEntries;
-            document.getElementById('reportUnits').textContent = totalUnits;
+            const reportEntriesEl = document.getElementById('reportEntries');
+            reportEntriesEl.textContent = totalEntries;
+            reportEntriesEl.style.color = '#495057';
+            
+            const reportUnitsEl = document.getElementById('reportUnits');
+            reportUnitsEl.textContent = totalUnits;
+            reportUnitsEl.style.color = '#495057';
+            
             document.getElementById('reportRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
             document.getElementById('reportProfit').textContent = `$${totalProfit.toFixed(2)}`;
-            document.getElementById('reportMargin').textContent = `${avgMargin.toFixed(1)}%`;
+            
+            const reportMarginEl = document.getElementById('reportMargin');
+            reportMarginEl.textContent = `${avgMargin.toFixed(1)}%`;
+            reportMarginEl.style.color = '#495057';
         }
+        // </CHANGE>
 
         function editSalesEntry(id) {
             const entry = salesEntries.find(e => e.id === id);
