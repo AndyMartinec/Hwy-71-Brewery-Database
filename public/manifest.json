@@ -1,0 +1,1 @@
+{"background_color": "#f5f2ec", "description": "Inventory, brew logs, fermentation sheets and Brewfather sync.", "display": "standalone", "icons": [{"purpose": "any", "sizes": "any", "src": "/icon.svg", "type": "image/svg+xml"}], "name": "Highway 71 Brewing \u2014 Ops", "short_name": "H71 Ops", "start_url": "/", "theme_color": "#14110d"}
