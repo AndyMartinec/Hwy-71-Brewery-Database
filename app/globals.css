@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-barlow), "Arial Narrow", sans-serif;
+
+  /* Warm charcoal "ink" */
+  --color-ink-950: #14110d;
+  --color-ink-900: #1c1917;
+  --color-ink-800: #292524;
+
+  /* Warm paper background */
+  --color-paper: #f5f2ec;
+  --color-paper-dark: #ece7dd;
+
+  /* Copper / brass accent */
+  --color-copper-50: #faf4ec;
+  --color-copper-100: #f2e3cf;
+  --color-copper-200: #e3c093;
+  --color-copper-300: #d29c5b;
+  --color-copper-400: #c07f38;
+  --color-copper-500: #a96624;
+  --color-copper-600: #8f531c;
+  --color-copper-700: #744017;
+  --color-copper-800: #5c3314;
+  --color-copper-900: #472810;
+}
+
+/* Prevent iOS auto-zoom on inputs; keep tap targets thumb-friendly. */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tabular numbers for data tables and stats. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
